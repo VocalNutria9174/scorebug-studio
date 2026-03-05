@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPATIAL — Surround Sound Converter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+  :root {
+    --bg:#08090c;--surface:#0f1117;--surface2:#161820;--border:#1e2130;
+    --accent:#00e5ff;--accent2:#7c3aed;--accent3:#f59e0b;
+    --text:#e8eaf0;--text-dim:#5a607a;--text-mid:#9299b0;
+    --danger:#ef4444;--success:#10b981;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;top:-50%;left:-20%;width:60%;height:80%;background:radial-gradient(ellipse,rgba(124,58,237,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+  .logo{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;line-height:1;}
+  .logo span{color:var(--accent);text-shadow:0 0 20px var(--accent);}
+  .logo-sub{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:0.2em;text-transform:uppercase;margin-top:6px;}
+  .badge{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,229,255,0.2);color:var(--accent);padding:6px 14px;border-radius:2px;}
+  .slabel{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .slabel::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+  /* Drop zone */
+  .drop-zone{border:1px dashed var(--border);border-radius:4px;padding:56px 32px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--surface);position:relative;overflow:hidden;margin-bottom:40px;}
+  .drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,229,255,0.05) 0%,transparent 70%);opacity:0;transition:opacity 0.3s;}
+  .drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(0,229,255,0.03);}
+  .drop-zone:hover::before,.drop-zone.over::before{opacity:1;}
+  .di{width:56px;height:56px;margin:0 auto 20px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
+  .drop-zone:hover .di{border-color:var(--accent);box-shadow:0 0 20px rgba(0,229,255,0.15);}
+  .di svg{width:24px;height:24px;stroke:var(--text-dim);transition:stroke 0.3s;}
+  .drop-zone:hover .di svg{stroke:var(--accent);}
+  .dt{font-size:1rem;font-weight:600;margin-bottom:8px;}
+  .ds{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--text-dim);}
+  #fi{display:none;}
+  /* File info */
+  .finfo{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:40px;align-items:center;gap:16px;}
+  .finfo.on{display:flex;}
+  .fico{width:40px;height:40px;background:linear-gradient(135deg,rgba(0,229,255,0.15),rgba(124,58,237,0.15));border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .fico svg{width:20px;height:20px;stroke:var(--accent);}
+  .fmeta{flex:1;}
+  .fname{font-size:0.9rem;font-weight:600;}
+  .fsize{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-top:2px;}
+  .fclr{background:none;border:1px solid var(--border);color:var(--text-dim);width:28px;height:28px;border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .fclr:hover{border-color:var(--danger);color:var(--danger);}
+  .fclr svg{width:14px;height:14px;}
+  /* Mode */
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:40px;}
+  .mc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;cursor:pointer;transition:all 0.2s;position:relative;}
+  .mc:hover{border-color:rgba(0,229,255,0.3);}
+  .mc.act{border-color:var(--accent);background:rgba(0,229,255,0.04);}
+  .mc.act::after{content:'';position:absolute;top:0;right:0;width:0;height:0;border-top:16px solid var(--accent);border-left:16px solid transparent;border-radius:0 4px 0 0;}
+  .mt{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;}
+  .mc.act .mt{color:var(--accent);}
+  .md{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text-dim);}
+  .dots{display:flex;gap:4px;margin-top:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+  .mc.act .dot{background:var(--accent);}
+  .mc.act .dot.lfe{background:var(--accent3);}
+  /* Channels */
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:40px;}
+  .cc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px;}
+  .cc:hover{border-color:rgba(255,255,255,0.08);}
+  .cch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cn{font-size:0.75rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+  .cbadge{font-family:'Space Mono',monospace;font-size:0.55rem;padding:2px 6px;border-radius:2px;background:var(--border);color:var(--text-dim);}
+  .lfe-b{background:rgba(245,158,11,0.15);color:var(--accent3);}
+  .ctr-b{background:rgba(0,229,255,0.1);color:var(--accent);}
+  .cv{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--accent);min-width:36px;text-align:right;}
+  .sw{position:relative;height:4px;background:var(--border);border-radius:2px;margin-bottom:12px;}
+  .sf{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;pointer-events:none;}
+  .cs{position:absolute;inset:-6px 0;width:100%;opacity:0;cursor:pointer;height:16px;}
+  .clabel{font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--text-dim);margin-bottom:8px;}
+  .csrc{display:flex;gap:6px;}
+  .sb{flex:1;font-family:'Space Mono',monospace;font-size:0.6rem;padding:5px 2px;border-radius:2px;border:1px solid var(--border);background:none;color:var(--text-dim);cursor:pointer;transition:all 0.2s;text-align:center;}
+  .sb:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+  .sL{background:rgba(0,229,255,0.1)!important;border-color:var(--accent)!important;color:var(--accent)!important;}
+  .sR{background:rgba(124,58,237,0.1)!important;border-color:var(--accent2)!important;color:#a78bfa!important;}
+  .sMIX{background:rgba(245,158,11,0.1)!important;border-color:var(--accent3)!important;color:var(--accent3)!important;}
+  .sLFE{background:rgba(16,185,129,0.1)!important;border-color:var(--success)!important;color:var(--success)!important;}
+  /* Options */
+  .ogrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:40px;}
+  .oc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px;}
+  .ol{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+  .os{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.75rem;padding:8px 12px;cursor:pointer;outline:none;-webkit-appearance:none;}
+  .os:focus{border-color:var(--accent);}
+  /* Convert button */
+  .cvt{width:100%;padding:20px;background:linear-gradient(135deg,var(--accent2),#06b6d4);border:none;border-radius:4px;color:white;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.05em;cursor:pointer;transition:all 0.3s;margin-bottom:24px;}
+  .cvt:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 30px rgba(124,58,237,0.4);}
+  .cvt:disabled{opacity:0.4;cursor:not-allowed;}
+  .bi{display:flex;align-items:center;justify-content:center;gap:12px;}
+  /* Progress */
+  .prog{display:none;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:24px;}
+  .prog.on{display:block;}
+  .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .pl{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text-mid);letter-spacing:0.08em;}
+  .pp{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent);}
+  .pb{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:8px;}
+  .pf{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;width:0%;transition:width 0.2s ease;}
+  .ps{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--text-dim);}
+  /* Result */
+  .res{display:none;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(0,229,255,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:4px;padding:24px;margin-bottom:24px;text-align:center;}
+  .res.on{display:block;}
+  .ri{width:48px;height:48px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .ri svg{width:24px;height:24px;stroke:var(--success);}
+  .rt{font-size:1.1rem;font-weight:700;margin-bottom:4px;color:var(--success);}
+  .rinfo{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-bottom:20px;}
+  .dlbtn{display:inline-flex;align-items:center;gap:10px;background:var(--success);color:#000;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;padding:12px 28px;border-radius:3px;text-decoration:none;transition:all 0.2s;}
+  .dlbtn:hover{background:#34d399;transform:translateY(-1px);}
+  .dlbtn svg{width:16px;height:16px;stroke:currentColor;}
+  /* Error */
+  .err{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:4px;padding:16px 20px;margin-bottom:24px;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--danger);line-height:1.7;}
+  .err.on{display:block;}
+  /* Note */
+  .note{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--text-dim);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px 16px;line-height:1.7;margin-bottom:40px;}
+  .note b{color:var(--accent3);}
+  @media(max-width:600px){.mode-grid,.ogrid{grid-template-columns:1fr;}.cgrid{grid-template-columns:1fr 1fr;}header{flex-direction:column;align-items:flex-start;gap:16px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="logo">SPA<span>T</span>IAL</div>
+      <div class="logo-sub">Stereo → Surround Converter</div>
+    </div>
+    <div class="badge">Apple AAC · M4A Output</div>
+  </header>
+
+  <div class="slabel">01 / Source File</div>
+  <div class="drop-zone" id="dz">
+    <div class="di"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19V6l12-3v13"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+    <div class="dt">Drop stereo audio here</div>
+    <div class="ds">MP3 · WAV · FLAC · AAC · OGG · M4A &nbsp;·&nbsp; click to browse</div>
+    <input type="file" id="fi" accept="audio/*">
+  </div>
+  <div class="finfo" id="finfo">
+    <div class="fico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19V6l12-3v13"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+    <div class="fmeta"><div class="fname" id="fname">—</div><div class="fsize" id="fsize">—</div></div>
+    <button class="fclr" id="fclr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+
+  <div class="slabel">02 / Output Format</div>
+  <div class="mode-grid">
+    <div class="mc act" data-mode="5.1" onclick="selMode('5.1')">
+      <div class="mt">5.1</div><div class="md">AAC 5.1 · Standard surround</div>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot lfe"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+    <div class="mc" data-mode="7.1" onclick="selMode('7.1')">
+      <div class="mt">7.1</div><div class="md">AAC 7.1 · Extended surround</div>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot lfe"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+
+  <div class="slabel">03 / Channel Mix</div>
+  <div class="cgrid" id="cgrid"></div>
+
+  <div class="slabel">04 / Encoding Options</div>
+  <div class="ogrid">
+    <div class="oc"><div class="ol">Bitrate</div>
+      <select class="os" id="br"><option value="192k">192 kbps</option><option value="256k" selected>256 kbps</option><option value="320k">320 kbps</option><option value="384k">384 kbps ★</option></select>
+    </div>
+    <div class="oc"><div class="ol">Sample Rate</div>
+      <select class="os" id="sr"><option value="44100">44.1 kHz</option><option value="48000" selected>48 kHz</option><option value="96000">96 kHz</option></select>
+    </div>
+    <div class="oc"><div class="ol">LFE Crossover</div>
+      <select class="os" id="lfe"><option value="80">80 Hz (THX)</option><option value="120" selected>120 Hz (Apple)</option><option value="160">160 Hz</option></select>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>⚡ Pipeline:</b> Web Audio API decodes your file → custom upmix matrix builds each channel → FFmpeg WASM encodes AAC-LC in M4A. Apple-compatible channel layout metadata is embedded.<br>
+    <b>🔒 Privacy:</b> 100% local — nothing is uploaded. FFmpeg WASM (~9MB) is fetched once and cached by your browser.
+  </div>
+
+  <button class="cvt" id="cvtbtn" disabled>
+    <div class="bi">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Convert to Surround M4A
+    </div>
+  </button>
+
+  <div class="prog" id="prog">
+    <div class="ph"><div class="pl" id="plabel">Loading...</div><div class="pp" id="ppct">0%</div></div>
+    <div class="pb"><div class="pf" id="pbar"></div></div>
+    <div class="ps" id="pstatus"></div>
+  </div>
+  <div class="err" id="errbox"></div>
+  <div class="res" id="resbox">
+    <div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="rt">Conversion Complete</div>
+    <div class="rinfo" id="rinfo"></div>
+    <a id="dllink" class="dlbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download M4A File
+    </a>
+  </div>
+</div>
+
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────────
+const MODES = {
+  '5.1':[
+    {id:'FL',label:'Front Left',    badge:'',    def:'L',  vol:100},
+    {id:'FR',label:'Front Right',   badge:'',    def:'R',  vol:100},
+    {id:'FC',label:'Center',        badge:'ctr', def:'MIX',vol:70},
+    {id:'LFE',label:'LFE / Sub',    badge:'lfe', def:'LFE',vol:80},
+    {id:'BL',label:'Surround Left', badge:'',    def:'L',  vol:75},
+    {id:'BR',label:'Surround Right',badge:'',    def:'R',  vol:75},
+  ],
+  '7.1':[
+    {id:'FL',label:'Front Left',   badge:'',    def:'L',  vol:100},
+    {id:'FR',label:'Front Right',  badge:'',    def:'R',  vol:100},
+    {id:'FC',label:'Center',       badge:'ctr', def:'MIX',vol:70},
+    {id:'LFE',label:'LFE / Sub',   badge:'lfe', def:'LFE',vol:80},
+    {id:'BL',label:'Rear Left',    badge:'',    def:'L',  vol:70},
+    {id:'BR',label:'Rear Right',   badge:'',    def:'R',  vol:70},
+    {id:'SL',label:'Side Left',    badge:'',    def:'L',  vol:75},
+    {id:'SR',label:'Side Right',   badge:'',    def:'R',  vol:75},
+  ]
+};
+
+// Multiple CDN fallbacks for FFmpeg core
+const FF_CDNS = [
+  {
+    js:   'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js',
+    core: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+    wasm: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm',
+  },
+  {
+    js:   'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js',
+    core: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+    wasm: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm',
+  },
+];
+
+let mode='5.1', chState={}, audioFile=null, busy=false, ffInst=null;
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+function setP(pct,label,status){
+  $('pbar').style.width=pct+'%';
+  $('ppct').textContent=Math.round(pct)+'%';
+  if(label!=null)$('plabel').textContent=label;
+  if(status!=null)$('pstatus').textContent=status;
+}
+const showP=()=>$('prog').classList.add('on');
+const hideP=()=>$('prog').classList.remove('on');
+const showErr=m=>{$('errbox').innerHTML=m;$('errbox').classList.add('on');};
+const hideErr=()=>$('errbox').classList.remove('on');
+const hideRes=()=>$('resbox').classList.remove('on');
+
+// ─── Channel UI ───────────────────────────────────────────────────────────────
+function initCh(m){
+  chState={};
+  MODES[m].forEach(c=>{ chState[c.id]={src:c.def,vol:c.vol}; });
+  renderCh(m);
+}
+function renderCh(m){
+  const g=$('cgrid'); g.innerHTML='';
+  MODES[m].forEach(ch=>{
+    const s=chState[ch.id];
+    const bc=ch.badge==='lfe'?'lfe-b':ch.badge==='ctr'?'ctr-b':'';
+    const bl=ch.badge==='lfe'?'LFE':ch.badge==='ctr'?'CTR':'';
+    const d=document.createElement('div'); d.className='cc';
+    d.innerHTML=`
+      <div class="cch">
+        <div class="cn">${ch.id}${bl?`<span class="cbadge ${bc}">${bl}</span>`:''}</div>
+        <div class="cv" id="vd${ch.id}">${s.vol}%</div>
+      </div>
+      <div class="sw">
+        <div class="sf" id="sf${ch.id}" style="width:${Math.min(s.vol,100)}%"></div>
+        <input type="range" class="cs" min="0" max="150" value="${s.vol}" oninput="upVol('${ch.id}',this.value)">
+      </div>
+      <div class="clabel">${ch.label}</div>
+      <div class="csrc">
+        ${[['L','L'],['R','R'],['MIX','L+R'],['LFE','SUB']].map(([k,l])=>`<button class="sb${s.src===k?' s'+k:''}" onclick="upSrc('${ch.id}','${k}',this)">${l}</button>`).join('')}
+      </div>`;
+    g.appendChild(d);
+  });
+}
+function upVol(id,v){
+  chState[id].vol=+v;
+  $('vd'+id).textContent=v+'%';
+  $('sf'+id).style.width=Math.min(v,100)+'%';
+}
+function upSrc(id,src,btn){
+  chState[id].src=src;
+  btn.closest('.cc').querySelectorAll('.sb').forEach(b=>b.className='sb');
+  btn.classList.add('s'+src);
+}
+function selMode(m){
+  mode=m;
+  document.querySelectorAll('.mc').forEach(c=>c.classList.remove('act'));
+  document.querySelector(`[data-mode="${m}"]`).classList.add('act');
+  initCh(m);
+}
+
+// ─── File drop ────────────────────────────────────────────────────────────────
+const dz=$('dz'), fi=$('fi');
+dz.addEventListener('click',()=>fi.click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])setFile(e.dataTransfer.files[0]);});
+fi.addEventListener('change',()=>{ if(fi.files[0])setFile(fi.files[0]); });
+$('fclr').addEventListener('click',()=>{
+  audioFile=null;
+  $('finfo').classList.remove('on');
+  dz.style.display='';
+  $('cvtbtn').disabled=true;
+  hideRes(); hideErr();
+});
+function setFile(f){
+  audioFile=f;
+  $('fname').textContent=f.name;
+  $('fsize').textContent=fmtBytes(f.size);
+  $('finfo').classList.add('on');
+  dz.style.display='none';
+  $('cvtbtn').disabled=false;
+  hideRes(); hideErr();
+}
+function fmtBytes(b){return b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB';}
+
+// ─── DSP helpers ──────────────────────────────────────────────────────────────
+function lowpass(data,sr,fc){
+  const out=new Float32Array(data.length);
+  const w=2*Math.PI*fc/sr,c=Math.cos(w),a=Math.sin(w)/1.414;
+  const b0=(1-c)/2,b1=1-c,b2=b0,a0=1+a,a1=-2*c,a2=1-a;
+  const n0=b0/a0,n1=b1/a0,n2=b2/a0,m1=a1/a0,m2=a2/a0;
+  let x1=0,x2=0,y1=0,y2=0;
+  for(let i=0;i<data.length;i++){
+    const x=data[i],y=n0*x+n1*x1+n2*x2-m1*y1-m2*y2;
+    x2=x1;x1=x;y2=y1;y1=y;out[i]=y;
+  }
+  return out;
+}
+
+function encodeWAV(channels,sr){
+  const nCh=channels.length,nF=channels[0].length,ds=nF*nCh*2;
+  const buf=new ArrayBuffer(44+ds),v=new DataView(buf);
+  const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+  ws(0,'RIFF');v.setUint32(4,36+ds,true);ws(8,'WAVE');ws(12,'fmt ');
+  v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,nCh,true);
+  v.setUint32(24,sr,true);v.setUint32(28,sr*nCh*2,true);
+  v.setUint16(32,nCh*2,true);v.setUint16(34,16,true);
+  ws(36,'data');v.setUint32(40,ds,true);
+  let o=44;
+  for(let i=0;i<nF;i++) for(let c=0;c<nCh;c++){
+    const s=Math.max(-1,Math.min(1,channels[c][i]));
+    v.setInt16(o,s<0?s*0x8000:s*0x7FFF,true);o+=2;
+  }
+  return new Uint8Array(buf);
+}
+
+// ─── FFmpeg loader: fetch bytes manually for progress + fallback CDN ──────────
+async function fetchWithProgress(url, label, p0, p1) {
+  setP(p0, label, `Connecting to ${new URL(url).hostname}...`);
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status} fetching ${url}`);
+  const total = parseInt(resp.headers.get('content-length') || '0');
+  const reader = resp.body.getReader();
+  const chunks = [];
+  let received = 0;
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    if (total > 0) {
+      const frac = received / total;
+      setP(p0 + frac*(p1-p0), label, `${fmtBytes(received)} / ${fmtBytes(total)}`);
+    } else {
+      setP((p0+p1)/2, label, `${fmtBytes(received)} downloaded...`);
+    }
+  }
+  const merged = new Uint8Array(received);
+  let offset = 0;
+  for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.length; }
+  return merged;
+}
+
+async function loadFFmpeg() {
+  if (ffInst) return ffInst;
+
+  let lastErr = null;
+  for (const cdn of FF_CDNS) {
+    try {
+      setP(30, 'Loading FFmpeg JS...', `Trying ${new URL(cdn.js).hostname}...`);
+
+      // Load the JS wrapper
+      await loadScript(cdn.js);
+      const Lib = window.FFmpegWASM || window.FFmpeg;
+      if (!Lib || !Lib.FFmpeg) throw new Error('FFmpegWASM class not found after script load');
+      const {FFmpeg} = Lib;
+
+      // Fetch core JS and WASM bytes ourselves so we get real progress
+      const coreBytes = await fetchWithProgress(cdn.core, 'Downloading FFmpeg core JS...', 40, 55);
+      const wasmBytes = await fetchWithProgress(cdn.wasm, 'Downloading FFmpeg WASM...', 55, 72);
+
+      setP(73, 'Initializing FFmpeg...', 'Compiling WebAssembly...');
+
+      // Build object URLs from our fetched bytes
+      const coreBlob = new Blob([coreBytes], {type:'text/javascript'});
+      const wasmBlob = new Blob([wasmBytes], {type:'application/wasm'});
+      const coreURL = URL.createObjectURL(coreBlob);
+      const wasmURL = URL.createObjectURL(wasmBlob);
+
+      const ff = new FFmpeg();
+      ff.on('log', ({message}) => console.log('[ff]', message));
+      ff.on('progress', ({progress}) => {
+        if (progress > 0) setP(78 + progress*18, 'Encoding AAC...', `FFmpeg: ${Math.round(progress*100)}%`);
+      });
+
+      await ff.load({ coreURL, wasmURL });
+      URL.revokeObjectURL(coreURL);
+      URL.revokeObjectURL(wasmURL);
+
+      ffInst = ff;
+      return ff;
+    } catch(e) {
+      console.warn('CDN attempt failed:', cdn.js, e);
+      lastErr = e;
+      // reset script tag so next CDN can load
+      ffInst = null;
+      window.FFmpegWASM = null;
+    }
+  }
+  throw new Error('All CDNs failed. Check your internet connection.\n\nDetails: ' + (lastErr?.message || lastErr));
+}
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const existing = document.querySelector(`script[data-ffmpeg]`);
+    if (existing) existing.remove();
+    window.FFmpegWASM = null;
+    const s = document.createElement('script');
+    s.src = src; s.crossOrigin = 'anonymous'; s.dataset.ffmpeg = '1';
+    s.onload = res;
+    s.onerror = () => rej(new Error('Script load failed: ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+// ─── Main convert ─────────────────────────────────────────────────────────────
+$('cvtbtn').addEventListener('click', async () => {
+  if (!audioFile || busy) return;
+  busy = true; hideRes(); hideErr(); showP();
+  $('cvtbtn').disabled = true;
+  try {
+    // 1. Decode audio
+    setP(2, 'Decoding audio...', 'Reading file...');
+    const ab = await audioFile.arrayBuffer();
+    const targetSR = parseInt($('sr').value);
+    const ctx = new (window.AudioContext||window.webkitAudioContext)({sampleRate: targetSR});
+    const decoded = await ctx.decodeAudioData(ab);
+    ctx.close();
+    const nF = decoded.length, sr = decoded.sampleRate;
+    const L = decoded.numberOfChannels > 0 ? decoded.getChannelData(0) : new Float32Array(nF);
+    const R = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : L;
+
+    // 2. Build channels
+    setP(18, 'Building channel mix...', 'Applying upmix matrix...');
+    const chs = MODES[mode], nCh = chs.length;
+    const lfeCut = parseInt($('lfe').value);
+    const mono = new Float32Array(nF);
+    for (let i=0;i<nF;i++) mono[i] = (L[i]+R[i])*0.5;
+    const lfeFiltered = lowpass(mono, sr, lfeCut);
+
+    const outChs = chs.map(ch => {
+      const s = chState[ch.id], vol = s.vol/100, buf = new Float32Array(nF);
+      if (s.src==='L')   for(let i=0;i<nF;i++) buf[i]=L[i]*vol;
+      else if(s.src==='R')   for(let i=0;i<nF;i++) buf[i]=R[i]*vol;
+      else if(s.src==='MIX') for(let i=0;i<nF;i++) buf[i]=mono[i]*vol;
+      else if(s.src==='LFE') for(let i=0;i<nF;i++) buf[i]=lfeFiltered[i]*vol;
+      return buf;
+    });
+
+    // 3. Encode WAV
+    setP(26, 'Writing WAV...', 'Interleaving PCM samples...');
+    const wavData = encodeWAV(outChs, sr);
+
+    // 4. Load FFmpeg (with progress, CDN fallback, blob URLs)
+    setP(30, 'Loading FFmpeg...', 'Starting...');
+    const ff = await loadFFmpeg();
+
+    // 5. Run FFmpeg
+    setP(78, 'Encoding AAC...', 'Writing input file...');
+    const bitrate = $('br').value;
+    const layout = mode === '5.1' ? '5.1' : '7.1';
+    await ff.writeFile('in.wav', wavData);
+    setP(80, 'Encoding AAC...', 'Running encoder...');
+    await ff.exec([
+      '-i','in.wav',
+      '-c:a','aac','-b:a',bitrate,
+      '-ar',String(sr),
+      '-channel_layout',layout,
+      '-movflags','+faststart',
+      'out.m4a'
+    ]);
+    const out = await ff.readFile('out.m4a');
+    try{await ff.deleteFile('in.wav');}catch(e){}
+    try{await ff.deleteFile('out.m4a');}catch(e){}
+
+    // 6. Done
+    setP(100,'Done!','');
+    const blob = new Blob([out.buffer], {type:'audio/mp4'});
+    const url = URL.createObjectURL(blob);
+    const base = audioFile.name.replace(/\.[^.]+$/,'');
+    $('rinfo').textContent = `${mode} Surround · AAC ${bitrate} · ${(sr/1000).toFixed(1)}kHz · ${nCh}ch · ${fmtBytes(blob.size)}`;
+    $('dllink').href = url;
+    $('dllink').download = `${base}_${mode}_surround.m4a`;
+    $('resbox').classList.add('on');
+    setTimeout(hideP, 800);
+
+  } catch(err) {
+    console.error(err);
+    hideP();
+    showErr('⚠ ' + (err.message || String(err)));
+  } finally {
+    busy = false;
+    $('cvtbtn').disabled = false;
+  }
+});
+
+// Boot
+initCh('5.1');
+</script>
+</body>
+</html>
