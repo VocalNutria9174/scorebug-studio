@@ -1,0 +1,4353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SCOREBUG STUDIO VERSION 1.1.31 WAS CREATED BY VOCALNUTRIA9174 AND CLAUDE SONNET 4.6! -->
+<title>Scorebug Studio + Extras - v1.1.31</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ════════════════════════════════════════
+   GRAPHIC TABS (top-level selector)
+════════════════════════════════════════ */
+.graphic-tabs-bar {
+  display: flex; align-items: center;
+  padding: 0 20px;
+  background: #0f1923;
+  border-bottom: 1px solid #1e2d3d;
+  gap: 0;
+}
+.graphic-tab {
+  padding: 10px 20px;
+  font-size: 12px; font-weight: 700;
+  color: #4a5568;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .14s, border-color .14s;
+  user-select: none;
+  white-space: nowrap;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+.graphic-tab:hover { color: #8a95a3; }
+.graphic-tab.active { color: #fff; border-bottom-color: var(--accent); }
+
+.show-hide-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-left: auto; padding-right: 0;
+}
+.gh-btn {
+  height: 28px; padding: 0 14px;
+  border: none; border-radius: var(--radius);
+  font-size: 11px; font-weight: 700; font-family: 'Barlow', sans-serif;
+  letter-spacing: .4px; cursor: pointer;
+  transition: background .13s, transform .1s;
+  display: flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+.gh-btn:active { transform: scale(.93); }
+.gh-btn-show { background: var(--success); color: #fff; }
+.gh-btn-show:hover { background: #138a3c; }
+.gh-btn-hide { background: #374151; color: #d1d5db; }
+.gh-btn-hide:hover { background: var(--danger); color: #fff; }
+.gh-status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #374151; flex-shrink: 0;
+  transition: background .3s ease;
+}
+.gh-status-dot.live { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,.7); }
+
+/* graphic content panes */
+.graphic-pane { display: none; }
+.graphic-pane.active { display: block; }
+
+:root {
+  --bg:      #f0f2f5;
+  --surface: #ffffff;
+  --surf2:   #f7f8fa;
+  --border:  #e2e5ea;
+  --border2: #d0d4db;
+  --text:    #0f1923;
+  --text2:   #4a5568;
+  --text3:   #8a95a3;
+  --accent:  #1a56db;
+  --danger:  #dc2626;
+  --success: #16a34a;
+  --radius:  6px;
+  --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
+  --shadow-lg: 0 4px 24px rgba(0,0,0,.13), 0 1px 4px rgba(0,0,0,.06);
+}
+
+body { background: var(--bg); min-height: 100vh; font-family: 'Barlow', sans-serif; color: var(--text); }
+
+/* ════════════════════════════════════════
+   CONTROLS
+════════════════════════════════════════ */
+#controls {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 200; box-shadow: var(--shadow);
+}
+
+/* top bar */
+.ctrl-topbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 20px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.ctrl-topbar h2 {
+  font-size: 13px; font-weight: 700; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .5px;
+  display: flex; align-items: center; gap: 7px;
+}
+.ctrl-topbar h2 .icon {
+  width: 22px; height: 22px; background: var(--accent); color: #fff;
+  border-radius: 5px; font-size: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* main tabs */
+.ctrl-tabs {
+  display: flex; padding: 0 20px;
+  background: var(--surf2); border-bottom: 1px solid var(--border);
+}
+.ctrl-tab {
+  padding: 8px 16px; font-size: 12px; font-weight: 600; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: color .14s, border-color .14s; user-select: none; white-space: nowrap;
+}
+.ctrl-tab:hover { color: var(--text2); }
+.ctrl-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* panes */
+.ctrl-panes { padding: 14px 20px; }
+.ctrl-pane  { display: none; }
+.ctrl-pane.active { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+
+/* field group */
+.fg {
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+}
+.fg > label {
+  font-size: 10.5px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .6px;
+}
+
+/* inputs */
+input[type=text], input[type=number], select {
+  height: 32px; border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 0 9px; font-size: 13px; font-family: 'Barlow', sans-serif;
+  color: var(--text); background: var(--surface); outline: none;
+  transition: border-color .14s, box-shadow .14s; width: 100%;
+}
+input[type=text]:focus, input[type=number]:focus, select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+}
+input[type=number] { width: 62px; text-align: center; }
+.w-xs  { width: 52px !important; }
+.w-sm  { width: 72px !important; }
+.w-md  { width: 110px !important; }
+.w-lg  { width: 150px !important; }
+.w-xl  { width: 210px !important; }
+
+/* stepper */
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper input { width: 54px; text-align: center; }
+.step-btn {
+  width: 28px; height: 32px; border: 1px solid var(--border2);
+  border-radius: var(--radius); background: var(--surf2); color: var(--text2);
+  font-size: 16px; font-weight: 700; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s; flex-shrink: 0;
+}
+.step-btn:hover { background: var(--border); }
+
+/* color pair */
+.color-pair { display: flex; align-items: center; gap: 6px; }
+.csw { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.csw span { font-size: 9.5px; color: var(--text3); }
+input[type=color] {
+  width: 36px; height: 32px; border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 2px 3px; cursor: pointer; background: var(--surface);
+}
+.carr { color: var(--text3); font-size: 13px; }
+
+/* sport switcher */
+.sport-switcher {
+  margin-left: auto; position: relative;
+}
+.sport-icon-btn {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  background: var(--surf2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: background .13s, border-color .13s;
+  flex-shrink: 0;
+}
+.sport-icon-btn:hover { background: var(--border); border-color: var(--border2); }
+.sport-icon-btn.open  { background: #eff4ff; border-color: var(--accent); }
+.sport-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; box-shadow: var(--shadow-lg);
+  min-width: 160px; overflow: hidden;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-6px) scale(.97);
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 9999;
+}
+.sport-dropdown.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.sport-dropdown-label {
+  padding: 8px 12px 4px;
+  font-size: 10px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .7px;
+}
+.sport-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  transition: background .11s;
+}
+.sport-option:hover { background: var(--surf2); }
+.sport-option.active { background: #eff4ff; color: var(--accent); }
+.sport-option .so-icon { font-size: 17px; width: 22px; text-align: center; }
+.sport-option .so-check { margin-left: auto; font-size: 13px; opacity: 0; }
+.sport-option.active .so-check { opacity: 1; }
+
+/* upload */
+.upload-widget { display: flex; align-items: center; gap: 6px; }
+.uf-wrap { position: relative; overflow: hidden; display: inline-flex; }
+.uf-wrap input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.uf-face {
+  height: 32px; padding: 0 12px;
+  display: flex; align-items: center; gap: 5px;
+  border: 1px dashed var(--border2); border-radius: var(--radius);
+  background: var(--surf2); font-size: 12px; font-weight: 600; color: var(--text3);
+  cursor: pointer; transition: all .14s; white-space: nowrap;
+}
+.uf-face:hover { border-color: var(--accent); color: var(--accent); background: #eff4ff; }
+.uf-face.has-file { border-color: var(--success); color: var(--success); background: #f0fdf4; }
+.clear-btn {
+  width: 32px; height: 32px; border: 1px solid var(--border2); border-radius: var(--radius);
+  background: var(--surf2); color: var(--text3); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all .12s; flex-shrink: 0;
+}
+.clear-btn:hover { background: #fef2f2; color: var(--danger); border-color: #fca5a5; }
+
+/* image slot selector tick button */
+.slot-select-btn {
+  width: 32px; height: 32px; border: 1px solid var(--border2); border-radius: var(--radius);
+  background: var(--surf2); color: var(--text3); font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all .12s; flex-shrink: 0;
+}
+.slot-select-btn:hover { background: #eff4ff; color: var(--accent); border-color: var(--accent); }
+.slot-select-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* check row */
+.check-row { display: flex; align-items: center; gap: 10px; height: 32px; }
+.chk { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.chk input { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; }
+.chk span { font-size: 12px; font-weight: 600; color: var(--text2); }
+
+/* pane divider */
+.pdiv { width: 1px; height: 52px; background: var(--border); margin: 0 4px; align-self: center; flex-shrink: 0; }
+
+/* ── TEAMS SPLIT PANE ── */
+.teams-split {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0;
+  width: 100%;
+}
+.team-col {
+  display: flex; flex-direction: column; gap: 0; padding: 0 16px 12px;
+}
+.team-col-header {
+  font-size: 10px; font-weight: 800; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 8px 0 10px; border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.team-col-header span {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.team-col-section {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.team-col-divider {
+  height: 1px; background: var(--border); margin: 10px 0;
+}
+.teams-col-separator {
+  width: 1px; background: var(--border); align-self: stretch;
+}
+.team-col .fg { min-width: 0; width: 100%; }
+.team-col .fg input[type=text],
+.team-col .fg input[type=number],
+.team-col .fg select { width: 100% !important; }
+.team-col .stepper input { width: 46px !important; }
+.team-col .color-pair { flex-wrap: nowrap; }
+.team-col .upload-widget { flex-wrap: nowrap; }
+
+/* quick-score buttons */
+.quick-btns { display: flex; gap: 4px; }
+.qbtn {
+  height: 32px; min-width: 40px; padding: 0 10px;
+  border: none; border-radius: var(--radius);
+  font-size: 12px; font-weight: 800; font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .3px; cursor: pointer; transition: filter .12s, transform .1s;
+  display: flex; align-items: center; justify-content: center;
+}
+.qbtn:hover  { filter: brightness(1.12); }
+.qbtn:active { transform: scale(.93); }
+.qbtn-1 { background: #22c55e; color: #fff; }
+.qbtn-2 { background: #f59e0b; color: #fff; }
+.qbtn-3 { background: #ef4444; color: #fff; }
+
+/* quarter selector buttons */
+.quarter-btns { display: flex; gap: 4px; }
+.qtr-btn {
+  height: 32px; padding: 0 11px;
+  border: 1.5px solid var(--border2); border-radius: var(--radius);
+  background: var(--surf2); color: var(--text3);
+  font-size: 11px; font-weight: 800; font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .8px; cursor: pointer;
+  transition: background .13s, color .13s, border-color .13s;
+  white-space: nowrap;
+}
+.qtr-btn:hover { background: var(--border); color: var(--text2); }
+.qtr-btn.active {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
+
+/* conditional field visibility */
+.fg-conditional {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height .2s ease, opacity .2s ease;
+}
+.fg-conditional.visible {
+  max-height: 60px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* football period display in center col */
+.period-display {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  transition: opacity .3s ease;
+}
+.period-num {
+  font-size: 28px; font-weight: 900; color: #fff; line-height: 1;
+  letter-spacing: -0.5px;
+}
+.period-lbl {
+  font-size: 9px; font-weight: 700; color: #6b83a8;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden;
+  max-width: 100%;
+  transition: font-size .15s ease, letter-spacing .15s ease;
+}
+.period-lbl.end-of {
+  font-size: 7.5px;
+  letter-spacing: .4px;
+}
+.sub-tabs {
+  display: flex; gap: 1px; margin-bottom: 2px;
+  border-bottom: 2px solid var(--border); width: 100%;
+}
+.sub-tab {
+  padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color .13s, border-color .13s; user-select: none; white-space: nowrap;
+}
+.sub-tab:hover { color: var(--text2); }
+.sub-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.sub-pane { display: none; flex-wrap: wrap; gap: 10px; align-items: flex-start; padding-top: 10px; width: 100%; }
+.sub-pane.active { display: flex; }
+
+/* active panel indicator badge */
+.active-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #eff4ff; color: var(--accent); border: 1px solid #c7d8f8;
+  border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700;
+  letter-spacing: .3px; align-self: center;
+}
+.show-btn {
+  height: 32px; padding: 0 14px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 12px; font-weight: 700; font-family: 'Barlow', sans-serif;
+  cursor: pointer; transition: background .13s; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+.show-btn:hover { background: #1240b8; }
+.show-btn.active-mode { background: var(--success); }
+.show-btn.active-mode:hover { background: #138a3c; }
+
+/* scorebug show/hide animations */
+@keyframes bugSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes bugSlideDown {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
+}
+#scorebug-outer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: center;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+#scorebug-outer.sb-visible {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+#scorebug-outer.sb-show-anim {
+  animation: bugSlideUp .45s cubic-bezier(.22,.68,0,1.2) forwards;
+}
+#scorebug-outer.sb-hide-anim {
+  animation: bugSlideDown .35s cubic-bezier(.4,0,.6,1) forwards;
+}
+#scorebug {
+  width: 100%; max-width: 1280px; height: 72px;
+  display: flex; align-items: stretch;
+  font-family: 'Barlow Condensed', sans-serif;
+  box-shadow: var(--shadow-lg); overflow: hidden; position: relative;
+}
+
+/* timeout highlight */
+.team-block {
+  display: flex; flex-direction: column;
+  height: 100%; min-width: 160px; position: relative;
+  transition: background .5s ease; overflow: hidden;
+}
+.team-block.timeout-active {
+  background: linear-gradient(135deg, #7c3000 0%, #c24e00 100%) !important;
+}
+.team-block::after {
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+  width: 1px; background: rgba(255,255,255,.15);
+}
+
+/* label strip with timeout swap */
+.block-label {
+  flex-shrink: 0; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.30); backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  font-size: 10px; font-weight: 700; letter-spacing: .9px;
+  text-transform: uppercase; color: rgba(255,255,255,.85);
+  white-space: nowrap; overflow: hidden; padding: 0 10px;
+  position: relative;
+}
+.label-team, .label-timeout {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .35s ease, transform .35s ease;
+  padding: 0 10px;
+}
+.label-timeout {
+  font-size: 9px; letter-spacing: 1.4px; color: #ffd08a;
+  opacity: 0; transform: translateY(8px);
+}
+.label-team {
+  opacity: 1; transform: translateY(0);
+}
+.timeout-active .label-team {
+  opacity: 0; transform: translateY(-8px);
+}
+.timeout-active .label-timeout {
+  opacity: 1; transform: translateY(0);
+}
+
+/* score row */
+.team-score-row {
+  flex: 1; display: flex; align-items: center; padding: 0 12px 0 10px;
+  transition: opacity .3s ease;
+}
+.team-logo-area {
+  width: 36px; height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 1px 6px rgba(0,0,0,.4));
+  /* logo always visible — only the score number gets hidden */
+}
+.team-logo-area svg, .team-logo-area img { width: 100%; height: 100%; object-fit: contain; }
+.logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; color: #fff; line-height: 1;
+  text-align: center; text-transform: uppercase;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 6px rgba(0,0,0,.5);
+  width: 100%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  /* font-size scales via JS based on character count */
+}
+/* logo mode toggle field */
+.logo-mode-row { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.logo-mode-fields { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+
+/* animated score — clip window, two rows scroll past each other */
+.team-score {
+  font-size: 38px; font-weight: 900; color: #fff;
+  margin-left: 10px; line-height: 1; letter-spacing: -1px;
+  position: relative;
+  height: 1.05em;
+  overflow: hidden;
+  display: flex; align-items: flex-start;
+  transition: opacity .3s ease, max-width .3s ease, margin-left .3s ease;
+  max-width: 200px;
+}
+
+/* score hidden state — only hides the number, not the logo */
+.score-hidden .team-score {
+  opacity: 0;
+  max-width: 0;
+  margin-left: 0;
+}
+
+/* the scroll track holds old + new stacked; we translate it */
+.score-track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.score-track .score-digit {
+  display: block;
+  line-height: 1.05em;
+  text-shadow: 0 2px 10px rgba(0,0,0,.35);
+}
+
+/* scroll UP: old on top, new below — track moves up */
+@keyframes trackScrollUp {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-1.05em); }
+}
+/* scroll DOWN: new on top, old below — track starts shifted up, moves down */
+@keyframes trackScrollDown {
+  from { transform: translateY(-1.05em); }
+  to   { transform: translateY(0); }
+}
+.score-anim-up   { animation: trackScrollUp   .32s cubic-bezier(.4,0,.2,1) both; }
+.score-anim-down { animation: trackScrollDown .32s cubic-bezier(.4,0,.2,1) both; }
+
+/* golden flash applied to the incoming digit */
+@keyframes digitFlash {
+  0%   { color: #fff; }
+  25%  { color: #f5c42a; text-shadow: 0 0 18px rgba(245,196,42,.9), 0 2px 10px rgba(0,0,0,.35); }
+  100% { color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.35); }
+}
+.score-flash { animation: digitFlash .55s ease both; }
+
+/* delta: old → +N (pause) → new score */
+@keyframes trackScrollUpDelta {
+  0%   { transform: translateY(0); }
+  28%  { transform: translateY(-1.05em); }
+  68%  { transform: translateY(-1.05em); }
+  100% { transform: translateY(-2.1em); }
+}
+.score-anim-up-delta { animation: trackScrollUpDelta 1.05s cubic-bezier(.4,0,.2,1) both; }
+
+/* +N label styling — green glow that fades at the end */
+@keyframes deltaGlow {
+  0%   { color: #4ade80; text-shadow: 0 0 22px rgba(74,222,128,.85), 0 2px 8px rgba(0,0,0,.35); }
+  75%  { color: #4ade80; text-shadow: 0 0 22px rgba(74,222,128,.85), 0 2px 8px rgba(0,0,0,.35); }
+  100% { color: #4ade80; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
+}
+.score-delta {
+  /* same font size as other digits so all three slots are equal height */
+  font-size: inherit;
+  letter-spacing: -1px;
+  display: flex !important;
+  align-items: center;
+  animation: deltaGlow 1.05s ease both;
+}
+
+.vdiv { width: 1px; height: 100%; background: rgba(0,0,0,.15); flex-shrink: 0; }
+
+/* center col */
+.center-col {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #1a2332; padding: 0 12px; width: 88px; flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+
+/* FINAL overlay */
+.final-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #1a2332;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s ease;
+  z-index: 10;
+}
+.final-overlay.visible { opacity: 1; pointer-events: auto; }
+.final-text {
+  font-size: 15px; font-weight: 900; color: #fff;
+  letter-spacing: 3px; text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+
+/* PRE-GAME overlay */
+.pregame-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #1a2332;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s ease;
+  z-index: 10;
+  padding: 0 8px;
+  text-align: center;
+}
+.pregame-overlay.visible { opacity: 1; pointer-events: auto; }
+.pregame-text {
+  font-size: 10px; font-weight: 900; color: #fff;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 1.3;
+  white-space: pre-line;
+}
+
+/* basketball period display */
+.period-display {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  transition: opacity .3s ease;
+}
+
+@keyframes periodFadeOut {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(.92); }
+}
+@keyframes periodFadeIn {
+  0%   { opacity: 0; transform: translateY(8px) scale(.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.period-fade-out { animation: periodFadeOut .15s ease forwards; }
+.period-fade-in  { animation: periodFadeIn  .2s cubic-bezier(.22,.68,0,1.2) forwards; }
+.period-num {
+  font-size: 28px; font-weight: 900; color: #fff; line-height: 1;
+  letter-spacing: -0.5px;
+}
+.period-lbl {
+  font-size: 9px; font-weight: 700; color: #6b83a8;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden;
+  max-width: 100%;
+  transition: font-size .15s ease, letter-spacing .15s ease;
+}
+.period-lbl.end-of {
+  font-size: 7.5px;
+  letter-spacing: .4px;
+}
+
+.center-divider { width: 1px; height: 100%; background: rgba(0,0,0,.18); flex-shrink: 0; }
+
+/* ── GAME CLOCK ── */
+.game-clock-block {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #141e2b; padding: 0 14px; width: 100px; flex-shrink: 0;
+  border-left: 1px solid rgba(0,0,0,.22); border-right: 1px solid rgba(0,0,0,.22);
+  position: relative; overflow: hidden;
+  transition: opacity .3s ease, max-width .35s cubic-bezier(.4,0,.2,1), padding .35s ease;
+}
+.game-clock-block.clock-hidden {
+  max-width: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+.clock-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 30px; font-weight: 900; color: #fff;
+  letter-spacing: -0.5px; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 10px rgba(0,0,0,.35);
+  transition: color .25s ease;
+}
+.clock-time.clock-running { color: #e2fce8; }
+.clock-time.clock-paused  { color: #fff; }
+.clock-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700; color: #6b83a8;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-top: 1px; line-height: 1; white-space: nowrap;
+}
+@keyframes clockPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .45; }
+}
+.clock-time.clock-paused-blink {
+  animation: clockPulse 1.1s ease infinite;
+}
+
+/* FD / sponsor bug */
+.fd-area {
+  background: #1e60ed;
+  width: 56px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-left:  1px solid rgba(255,255,255,.18);
+  border-right: 1px solid rgba(255,255,255,.18);
+  transition: background .3s ease;
+  overflow: hidden; position: relative;
+}
+.fd-text { font-size: 17px; font-weight: 900; color: #fff; letter-spacing: -.5px; }
+.fd-img {
+  width: 44px; height: 44px; object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.4));
+}
+
+/* right panel */
+.right-panel {
+  flex: 1; background: #1a2332;
+  display: flex; align-items: center;
+  padding: 0 16px 0 14px; overflow: hidden; position: relative;
+}
+
+/* panel slide animation */
+@keyframes panelSlideIn {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes panelSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-100%); }
+}
+.panel-content {
+  display: flex; align-items: center; width: 100%; height: 100%;
+}
+.panel-content.slide-in  { animation: panelSlideIn  .3s cubic-bezier(.22,.68,0,1.2) both; }
+.panel-content.slide-out { animation: panelSlideOut .22s ease both; }
+
+/* records card */
+.records-card {
+  display: flex; align-items: center; width: 100%; gap: 0;
+}
+.rec-team {
+  display: flex; align-items: center; gap: 10px; flex: 1;
+  padding: 0 14px;
+}
+.rec-team.home { flex-direction: row-reverse; }
+.rec-logo {
+  width: 34px; height: 34px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.4));
+}
+.rec-logo img { width: 100%; height: 100%; object-fit: contain; }
+.rec-info { display: flex; flex-direction: column; gap: 2px; }
+.rec-team.home .rec-info { align-items: flex-end; }
+.rec-name {
+  font-size: 11px; font-weight: 800; color: rgba(255,255,255,.6);
+  letter-spacing: 1px; text-transform: uppercase; line-height: 1;
+}
+.rec-wl {
+  font-size: 24px; font-weight: 900; color: #fff; line-height: 1;
+  letter-spacing: -.5px;
+}
+.rec-streak {
+  font-size: 11px; font-weight: 800; line-height: 1; letter-spacing: .5px;
+}
+.rec-streak.win  { color: #4ade80; }
+.rec-streak.loss { color: #f87171; }
+.rec-divider {
+  width: 1px; height: 42px; background: rgba(255,255,255,.12);
+  flex-shrink: 0;
+}
+.rp-divider { width: 1px; height: 34px; background: rgba(255,255,255,.15); flex-shrink: 0; margin: 0 12px; }
+
+/* text banner */
+.banner-wrap { display: flex; flex-direction: column; justify-content: center; }
+.banner-title { font-size: 21px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+.banner-sub   { font-size: 14px; font-weight: 600; color: #5a7ba8; letter-spacing: .5px; margin-top: 1px; }
+
+/* ticker / scrolling text */
+.ticker-wrap {
+  width: 100%; height: 100%;
+  overflow: hidden; display: flex; align-items: center;
+  position: relative;
+}
+.ticker-track {
+  display: inline-flex; align-items: center; white-space: nowrap;
+  will-change: transform;
+}
+.ticker-text {
+  font-size: 20px; font-weight: 800; color: #fff;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding-right: 99px; /* gap between loops */
+  font-family: 'Barlow Condensed', sans-serif;
+}
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-running { animation: tickerScroll linear infinite; }
+
+/* auto-cycle progress bar */
+.cycle-bar-wrap {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: rgba(255,255,255,.08); overflow: hidden;
+}
+.cycle-bar {
+  height: 100%; background: var(--accent);
+  width: 0%; transition: none;
+}
+@keyframes cycleBarFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+.cycle-bar.running {
+  animation: cycleBarFill linear forwards;
+}
+
+/* auto-cycle control row */
+.cycle-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.cycle-toggle-btn {
+  height: 32px; padding: 0 14px;
+  border: 1.5px solid var(--border2); border-radius: var(--radius);
+  background: var(--surf2); color: var(--text2);
+  font-size: 12px; font-weight: 700; font-family: 'Barlow', sans-serif;
+  cursor: pointer; transition: all .13s; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+.cycle-toggle-btn:hover { background: var(--border); }
+.cycle-toggle-btn.running {
+  background: var(--danger); color: #fff; border-color: var(--danger);
+}
+.cycle-check-group {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+
+/* image banner */
+.img-banner {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.img-banner img {
+  max-height: 100%; max-width: 100%; object-fit: contain;
+}
+.img-banner-placeholder {
+  color: #3d5678; font-size: 13px; font-weight: 600; letter-spacing: .5px;
+}
+/* ════════════════════════════════════════
+   TRANSITION SCORE GRAPHIC
+════════════════════════════════════════ */
+@keyframes transSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes transSlideDown {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
+}
+
+#trans-graphic-outer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: flex-start;
+  pointer-events: none;
+  transform: translateY(calc(100% + 20px));
+  padding: 0 0 20px 20px;
+}
+#trans-graphic-outer.tg-visible  { transform: translateY(0); pointer-events: auto; }
+#trans-graphic-outer.tg-show-anim { animation: transSlideUp   .45s cubic-bezier(.22,.68,0,1.2) forwards; }
+#trans-graphic-outer.tg-hide-anim { animation: transSlideDown .35s cubic-bezier(.4,0,.6,1)     forwards; }
+
+#trans-graphic {
+  width: 280px;
+  font-family: 'Barlow Condensed', sans-serif;
+  box-shadow: 0 4px 32px rgba(0,0,0,.65);
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+/* Network bar */
+.tg-network-bar {
+  height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 0 14px;
+}
+.tg-network-bar img {
+  max-height: 26px; max-width: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.5));
+}
+.tg-network-placeholder {
+  font-size: 13px; font-weight: 800; color: rgba(255,255,255,.45);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* Header row — quarter label + column labels */
+.tg-header {
+  background: #e8edf3;
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr;
+  height: 26px;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+}
+.tg-header-period {
+  padding: 0 12px;
+  font-size: 11px; font-weight: 800; color: #2d3748;
+  letter-spacing: .8px; text-transform: uppercase;
+}
+.tg-header-col {
+  text-align: center;
+  font-size: 10px; font-weight: 800; color: #6b7280;
+  letter-spacing: 1.2px; text-transform: uppercase;
+}
+
+/* Team rows */
+.tg-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr;
+  align-items: stretch;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.tg-row:first-child { border-top: none; }
+
+.tg-team-cell {
+  display: flex; align-items: center; justify-content: center;
+  height: 56px;
+  position: relative; overflow: hidden;
+}
+.tg-team-cell::after {
+  content: ''; position: absolute; right: 0; top: 8px; bottom: 8px;
+  width: 1px; background: rgba(255,255,255,.12);
+}
+.tg-team-logo {
+  width: 44px; height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 1px 8px rgba(0,0,0,.55));
+}
+.tg-team-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+.tg-stat-cell {
+  display: flex; align-items: center; justify-content: center;
+  background: #1e2d3f;
+  border-left: 1px solid rgba(255,255,255,.07);
+  position: relative;
+}
+.tg-stat-cell::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(0,0,0,.05) 100%);
+  pointer-events: none;
+}
+.tg-stat-num {
+  font-size: 36px; font-weight: 900; color: #fff;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+.tg-stat-num.score-highlight {
+  color: #f5c42a;
+  text-shadow: 0 0 20px rgba(245,196,42,.6), 0 2px 10px rgba(0,0,0,.4);
+}
+
+/* divider between rows */
+.tg-row-divider {
+  background: rgba(0,0,0,.25);
+  height: 1px;
+}
+
+/* ════════════════════════════════════════
+   BANNER GRAPHIC (placeholder)
+════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   BANNER GRAPHIC
+════════════════════════════════════════ */
+@keyframes bannerFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes bannerFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+#banner-graphic-outer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: center; align-items: flex-end;
+  pointer-events: none;
+  padding-bottom: 48px;
+  opacity: 0;
+}
+#banner-graphic-outer.bn-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#banner-graphic-outer.bn-show-anim {
+  animation: bannerFadeIn .35s ease forwards;
+}
+#banner-graphic-outer.bn-hide-anim {
+  animation: bannerFadeOut .25s ease forwards;
+}
+
+/* ── shared banner shell ── */
+#banner-graphic {
+  font-family: 'Barlow Condensed', sans-serif;
+  display: flex; align-items: stretch;
+  box-shadow: 0 6px 40px rgba(0,0,0,.7), 0 2px 8px rgba(0,0,0,.4);
+  border: 1.5px solid rgba(255,255,255,.18);
+  border-radius: 3px;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 800px;
+}
+
+/* ── TYPE A: logo + name/subtitle ── */
+.bn-logo-block {
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px 14px;
+  min-width: 70px;
+  flex-shrink: 0;
+  position: relative;
+}
+.bn-logo-block::after {
+  content: '';
+  position: absolute; right: 0; top: 10%; bottom: 10%;
+  width: 1.5px; background: rgba(255,255,255,.2);
+}
+.bn-logo-img {
+  width: 46px; height: 46px; object-fit: contain;
+  filter: drop-shadow(0 1px 6px rgba(0,0,0,.5));
+}
+.bn-logo-placeholder {
+  width: 46px; height: 46px;
+  border: 2px dashed rgba(255,255,255,.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3);
+  letter-spacing: .5px; text-align: center;
+}
+
+.bn-name-block {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 10px 16px 10px 14px;
+  gap: 1px;
+}
+.bn-label-top {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,.55);
+  letter-spacing: 1.8px; text-transform: uppercase; line-height: 1;
+}
+.bn-name-main {
+  font-size: 30px; font-weight: 900; color: #fff; line-height: 1;
+  letter-spacing: .5px; text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0,0,0,.4);
+}
+
+/* ── TYPE A: divider + text panel ── */
+.bn-divider {
+  width: 3px; background: rgba(255,255,255,.22); flex-shrink: 0;
+  align-self: stretch;
+}
+.bn-text-block {
+  display: flex; align-items: center;
+  padding: 12px 20px;
+  background: #dde3ea;
+}
+.bn-text-main {
+  font-size: 20px; font-weight: 800; color: #1a2332;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── TYPE B: text-only ── */
+.bn-center-block {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 14px 32px;
+  gap: 4px;
+  text-align: center;
+  white-space: nowrap;
+  flex: 1;
+  align-self: stretch;
+}
+.bn-center-title {
+  font-size: 28px; font-weight: 900; color: #fff; line-height: 1;
+  letter-spacing: 2px; text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,.4);
+}
+.bn-center-sub {
+  font-size: 14px; font-weight: 600; color: rgba(255,255,255,.6);
+  letter-spacing: 2.5px; text-transform: uppercase; line-height: 1;
+}
+
+/* ── TYPE C: image-only ── */
+.bn-img-block {
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 20px;
+  min-width: 200px; min-height: 72px;
+}
+.bn-img-block img {
+  max-height: 52px; max-width: 400px;
+  object-fit: contain;
+}
+
+/* ── TYPE D: Promo Card ── */
+@keyframes promoSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes promoSlideDown {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
+}
+
+#promo-card-outer {
+  position: fixed;
+  bottom: 0; left: 0;
+  display: flex; align-items: flex-end;
+  padding: 0 0 20px 20px;
+  pointer-events: none;
+  transform: translateY(calc(100% + 20px));
+}
+#promo-card-outer.pc-visible   { transform: translateY(0); pointer-events: auto; }
+#promo-card-outer.pc-show-anim { animation: promoSlideUp   .5s cubic-bezier(.22,.68,0,1.15) forwards; }
+#promo-card-outer.pc-hide-anim { animation: promoSlideDown .38s cubic-bezier(.4,0,.6,1)     forwards; }
+
+#promo-card {
+  width: 280px;
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: 'Barlow Condensed', sans-serif;
+  box-shadow: 0 8px 48px rgba(0,0,0,.75), 0 2px 8px rgba(0,0,0,.4);
+  border: 1.5px solid rgba(255,255,255,.18);
+  display: flex; flex-direction: column;
+}
+
+/* Header bar — title + subtitle */
+.pc-header {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 10px 14px 9px;
+  flex-shrink: 0;
+  border-bottom: 2px solid rgba(255,255,255,.15);
+}
+.pc-title {
+  font-size: 18px; font-weight: 900; color: #fff;
+  letter-spacing: .5px; text-transform: uppercase; line-height: 1;
+  text-shadow: 0 1px 6px rgba(0,0,0,.4);
+}
+.pc-subtitle {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.6);
+  letter-spacing: 1.8px; text-transform: uppercase; line-height: 1;
+  margin-top: 3px;
+}
+
+/* Image area — fixed height, contains image */
+.pc-image-area {
+  flex: 1;
+  min-height: 180px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.pc-image-area img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.pc-image-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; width: 100%; height: 100%; min-height: 180px;
+}
+.pc-image-placeholder-icon { font-size: 28px; opacity: .25; }
+.pc-image-placeholder-text {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.2);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* Bottom text block */
+.pc-footer {
+  flex-shrink: 0;
+  padding: 10px 14px 11px;
+  background: rgba(0,0,0,.25);
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.pc-footer-text {
+  font-size: 16px; font-weight: 800; color: #fff;
+  letter-spacing: 1px; text-transform: uppercase; line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+
+/* ════════════════════════════════════════
+   INTRO GRAPHIC
+════════════════════════════════════════ */
+@keyframes introFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes introFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Panels slide up from below */
+@keyframes introPanelUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Logos slam in from sides with overshoot bounce */
+@keyframes introLogoSlideLeft {
+  0%   { transform: translateX(-180px) scale(.7); opacity: 0; }
+  60%  { transform: translateX(14px)   scale(1.08); opacity: 1; }
+  80%  { transform: translateX(-6px)   scale(.97); }
+  100% { transform: translateX(0)      scale(1);   opacity: 1; }
+}
+@keyframes introLogoSlideRight {
+  0%   { transform: translateX(180px)  scale(.7); opacity: 0; }
+  60%  { transform: translateX(-14px)  scale(1.08); opacity: 1; }
+  80%  { transform: translateX(6px)    scale(.97); }
+  100% { transform: translateX(0)      scale(1);  opacity: 1; }
+}
+
+/* Team text fades + rises in */
+@keyframes introTextIn {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* VS divider grows from center */
+@keyframes introDividerGrow {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+/* Info bar slides up */
+@keyframes introBarUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+#intro-graphic-outer {
+  position: fixed; inset: 0;
+  display: flex; align-items: flex-end; justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  padding-bottom: 0;
+}
+#intro-graphic-outer.ig-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#intro-graphic-outer.ig-show-anim {
+  animation: introFadeIn .15s ease forwards;
+}
+#intro-graphic-outer.ig-hide-anim {
+  animation: introFadeOut .3s ease forwards;
+}
+
+/* Main intro shell — full-width bottom bar like the screenshot */
+#intro-graphic {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Barlow Condensed', sans-serif;
+  position: relative;
+  overflow: visible;
+}
+
+/* Top row: two team panels + optional center divider */
+.ig-teams-row {
+  display: flex;
+  width: 100%;
+  height: 120px;
+  position: relative;
+}
+
+/* Each team half */
+.ig-team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  position: relative;
+  overflow: hidden;
+}
+.ig-team.away { justify-content: flex-start; }
+.ig-team.home { justify-content: flex-end; flex-direction: row-reverse; text-align: right; }
+
+/* Panel slide-up on show */
+.ig-show-anim .ig-team.away,
+.ig-visible   .ig-team.away {
+  animation: introPanelUp .5s cubic-bezier(.22,.68,0,1.15) .05s both;
+}
+.ig-show-anim .ig-team.home,
+.ig-visible   .ig-team.home {
+  animation: introPanelUp .5s cubic-bezier(.22,.68,0,1.15) .1s both;
+}
+
+/* Logo */
+.ig-logo-wrap {
+  width: 130px; height: 130px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  margin-top: 0;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,.7));
+  z-index: 10;
+}
+.ig-logo-wrap img {
+  width: 100%; height: 100%; object-fit: contain;
+}
+.ig-logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; color: #fff;
+  text-transform: uppercase; letter-spacing: -1px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; font-size: 42px;
+}
+.ig-logo-placeholder {
+  width: 100px; height: 100px;
+  border: 3px dashed rgba(255,255,255,.25);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.3);
+  letter-spacing: 1px; text-align: center;
+}
+
+/* Logo slam-in animations */
+.ig-show-anim .ig-logo-wrap.away-logo,
+.ig-visible   .ig-logo-wrap.away-logo {
+  animation: introLogoSlideLeft  .65s cubic-bezier(.22,.68,0,1.2) .35s both;
+}
+.ig-show-anim .ig-logo-wrap.home-logo,
+.ig-visible   .ig-logo-wrap.home-logo {
+  animation: introLogoSlideRight .65s cubic-bezier(.22,.68,0,1.2) .35s both;
+}
+
+/* Team text block */
+.ig-team-info {
+  display: flex; flex-direction: column;
+  gap: 0;
+  padding: 0 18px;
+  flex: 1;
+}
+.ig-team.away .ig-team-info { align-items: flex-start; text-align: left; }
+.ig-team.home .ig-team-info { align-items: flex-end; text-align: right; }
+
+/* Team info text staggered fade-in */
+.ig-show-anim .ig-team-info,
+.ig-visible   .ig-team-info {
+  animation: introTextIn .45s cubic-bezier(.22,.68,0,1.2) .5s both;
+}
+
+.ig-record {
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,.65);
+  letter-spacing: 1.5px; line-height: 1;
+  margin-bottom: 2px;
+}
+.ig-city {
+  font-size: 16px; font-weight: 600; color: rgba(255,255,255,.75);
+  letter-spacing: 2px; text-transform: uppercase; line-height: 1;
+}
+.ig-name {
+  font-size: 42px; font-weight: 900; color: #fff; line-height: .95;
+  letter-spacing: .5px; text-transform: uppercase;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+}
+
+/* VS divider grows in */
+.ig-vs {
+  width: 4px;
+  background: rgba(255,255,255,.15);
+  flex-shrink: 0;
+  align-self: stretch;
+  position: relative;
+  z-index: 2;
+  transform-origin: center;
+}
+.ig-show-anim .ig-vs,
+.ig-visible   .ig-vs {
+  animation: introDividerGrow .4s cubic-bezier(.22,.68,0,1.3) .45s both;
+}
+
+/* Score badges near center divider */
+.ig-score-away,
+.ig-score-home {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px; font-weight: 900; color: #fff; line-height: 1;
+  letter-spacing: -2px;
+  text-shadow: 0 2px 16px rgba(0,0,0,.5);
+  pointer-events: none;
+  z-index: 5;
+}
+.ig-score-away { right: 28px; }
+.ig-score-home { left: 28px; }
+
+/* Game state badge — sits between teams row and info bar */
+.ig-state-bar {
+  display: flex; align-items: center; justify-content: center;
+  height: 28px;
+  background: rgba(0,0,0,.45);
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.ig-state-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 900; color: #fff;
+  letter-spacing: 3px; text-transform: uppercase;
+  background: rgba(255,255,255,.12);
+  padding: 0 16px; border-radius: 999px; line-height: 22px;
+}
+
+/* Bottom info bar slides up last */
+.ig-info-bar {
+  height: 36px;
+  background: rgba(235,238,243,0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  overflow: hidden;
+}
+.ig-show-anim .ig-info-bar,
+.ig-visible   .ig-info-bar {
+  animation: introBarUp .45s cubic-bezier(.22,.68,0,1.15) .6s both;
+}
+.ig-info-venue {
+  font-size: 14px; font-weight: 800; color: #1a2332;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.ig-info-sep {
+  width: 1px; height: 18px; background: #c0c8d3;
+  margin: 0 20px; flex-shrink: 0;
+}
+.ig-info-location {
+  font-size: 14px; font-weight: 800; color: #1a2332;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════
+   AD SPACE BOARD GRAPHIC
+════════════════════════════════════════ */
+@keyframes adBoardSlideInLeft {
+  from { transform: translateX(-110%) rotate(-3deg); opacity: 0; }
+  to   { transform: translateX(0)     rotate(0deg);  opacity: 1; }
+}
+@keyframes adBoardSlideOutLeft {
+  from { transform: translateX(0)     rotate(0deg);  opacity: 1; }
+  to   { transform: translateX(-110%) rotate(-3deg); opacity: 0; }
+}
+@keyframes adContentSlideIn {
+  from { transform: translateY(20px) scale(.95); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);   opacity: 1; }
+}
+@keyframes adContentSlideOut {
+  from { transform: translateY(0)     scale(1);   opacity: 1; }
+  to   { transform: translateY(-20px) scale(.95); opacity: 0; }
+}
+@keyframes adDefaultPulse {
+  0%,100% { opacity: .7; }
+  50%      { opacity: 1;  }
+}
+@keyframes adAccentBar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+#adboard-outer {
+  position: fixed;
+  bottom: 0; left: 0;
+  display: flex; align-items: flex-end;
+  padding: 0 0 18px 18px;
+  pointer-events: none;
+  transform: translateX(-115%);
+}
+#adboard-outer.ab-visible   { transform: translateX(0); pointer-events: auto; }
+#adboard-outer.ab-show-anim { animation: adBoardSlideInLeft  .55s cubic-bezier(.22,.68,0,1.15) forwards; }
+#adboard-outer.ab-hide-anim { animation: adBoardSlideOutLeft .4s  cubic-bezier(.4,0,.6,1)      forwards; }
+
+/* LED scoreboard outer frame — mimics the reference image */
+#adboard-frame {
+  position: relative;
+  padding: 14px 14px 14px 14px;
+  border-radius: 8px;
+  background:
+    /* LED dot pattern overlay */
+    radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px),
+    /* main dark metal body */
+    linear-gradient(160deg, #1a1a1a 0%, #111111 50%, #0d0d0d 100%);
+  background-size: 6px 6px, 100% 100%;
+  box-shadow:
+    0 0 0 2px #000,
+    0 0 0 4px #2a2a2a,
+    0 12px 60px rgba(0,0,0,.9),
+    0 4px 16px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -1px 0 rgba(0,0,0,.5);
+}
+
+/* Red LED strip on the left side, like the reference image */
+#adboard-frame::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 10px;
+  border-radius: 8px 0 0 8px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #cc0000 0px, #ff1a1a 3px,
+    #990000 3px, #aa0000 6px,
+    #1a0000 6px, #1a0000 9px
+  );
+  box-shadow: inset -2px 0 4px rgba(0,0,0,.6), 2px 0 8px rgba(200,0,0,.3);
+}
+
+/* Thin accent line on right side */
+#adboard-frame::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 6px;
+  border-radius: 0 8px 8px 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    #1a1a1a 0px,
+    #2a2a2a 3px,
+    #111 3px,
+    #111 6px
+  );
+  box-shadow: inset 2px 0 4px rgba(0,0,0,.5);
+}
+
+#adboard {
+  width: 330px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,.12),
+    0 0 20px rgba(0,0,0,.8),
+    inset 0 1px 0 rgba(255,255,255,.1);
+  font-family: 'Barlow Condensed', sans-serif;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+
+.ab-header {
+  display: flex; align-items: center; justify-content: center;
+  height: 46px; padding: 0 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0; position: relative; overflow: hidden;
+  transition: background .5s ease;
+}
+.ab-header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  transform-origin: left; background: rgba(255,255,255,.35);
+  animation: adAccentBar .5s cubic-bezier(.22,.68,0,1.15) .15s both;
+}
+.ab-header-logo {
+  height: 34px; width: 100%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.5));
+}
+.ab-header-logo img { max-height: 32px; max-width: 200px; object-fit: contain; }
+.ab-header-fallback {
+  font-size: 18px; font-weight: 900; color: rgba(255,255,255,.55);
+  letter-spacing: -0.5px;
+}
+.ab-slot-dots {
+  display: flex; gap: 5px; align-items: center;
+}
+.ab-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  transition: background .3s, transform .3s;
+}
+.ab-dot.active { background: #fff; transform: scale(1.3); }
+
+.ab-content {
+  flex: 1; min-height: 214px;
+  display: flex; align-items: stretch; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+.ab-frame {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.ab-frame.ab-content-in  { animation: adContentSlideIn  .38s cubic-bezier(.22,.68,0,1.15) both; }
+.ab-frame.ab-content-out { animation: adContentSlideOut .22s ease both; }
+.ab-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+.ab-default-state {
+  width: 100%; height: 100%; min-height: 214px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: background .5s ease;
+  position: relative; overflow: hidden;
+}
+/* Full-height logo fill mode */
+.ab-default-logo-fill {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 2px 20px rgba(0,0,0,.7));
+  padding: 10px;
+}
+.ab-default-logo-fill img {
+  max-width: 100%; max-height: 100%;
+  width: auto; height: 100%;
+  object-fit: contain;
+}
+.ab-default-text-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; color: #fff;
+  text-transform: uppercase; letter-spacing: -1px;
+  text-shadow: 0 2px 16px rgba(0,0,0,.6);
+  font-size: 56px; line-height: 1;
+  text-align: center; padding: 10px;
+}
+.ab-default-logo {
+  width: 82px; height: 82px;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 2px 16px rgba(0,0,0,.65));
+}
+.ab-default-logo img { width: 100%; height: 100%; object-fit: contain; }
+.ab-default-fallback {
+  font-size: 32px; font-weight: 900; color: rgba(255,255,255,.4);
+  letter-spacing: -1px;
+}
+.ab-placeholder {
+  width: 100%; height: 100%; min-height: 214px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+}
+.ab-placeholder-icon { font-size: 30px; opacity: .2; }
+.ab-placeholder-text { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.2); letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     CONTROLS
+════════════════════════════════════════ -->
+<div id="controls">
+  <!-- ── GRAPHIC TABS BAR ── -->
+  <div class="graphic-tabs-bar">
+    <div class="graphic-tab active" data-gtab="scorebug" onclick="switchGraphicTab('scorebug')">🏟 Scorebug</div>
+    <div class="graphic-tab"       data-gtab="transition" onclick="switchGraphicTab('transition')">⚡ Transition Score</div>
+    <div class="graphic-tab"       data-gtab="banner"     onclick="switchGraphicTab('banner')">📣 Banner</div>
+    <div class="graphic-tab"       data-gtab="intro"      onclick="switchGraphicTab('intro')">🎬 Intro</div>
+    <div class="graphic-tab"       data-gtab="adboard"    onclick="switchGraphicTab('adboard')">📺 Ad Board</div>
+    <div class="show-hide-bar">
+      <div class="gh-status-dot" id="ghDot"></div>
+      <button class="gh-btn gh-btn-show" onclick="showGraphic()">▶ Show</button>
+      <button class="gh-btn gh-btn-hide" onclick="hideGraphic()">✕ Hide</button>
+    </div>
+  </div>
+
+  <!-- ── SCOREBUG GRAPHIC PANE ── -->
+  <div class="graphic-pane active" id="gpane-scorebug">
+  <div class="ctrl-topbar">
+    <h2><span class="icon" id="studioIcon">🏈</span> Scorebug Studio</h2>
+    <div class="sport-switcher" id="sportSwitcher">
+      <button class="sport-icon-btn" id="sportIconBtn" onclick="toggleSportDropdown()" title="Switch Sport">🏈</button>
+      <div class="sport-dropdown" id="sportDropdown">
+        <div class="sport-dropdown-label">Switch Sport</div>
+        <div class="sport-option active" data-sport="football" onclick="setSport('football')">
+          <span class="so-icon">🏈</span> Football
+          <span class="so-check">✓</span>
+        </div>
+        <div class="sport-option" data-sport="basketball" onclick="setSport('basketball')">
+          <span class="so-icon">🏀</span> Basketball
+          <span class="so-check">✓</span>
+        </div>
+        <div class="sport-option" data-sport="soccer" onclick="setSport('soccer')">
+          <span class="so-icon">⚽</span> Soccer
+          <span class="so-check">✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl-tabs">
+    <div class="ctrl-tab active" data-tab="teams">Teams</div>
+    <div class="ctrl-tab"       data-tab="game">Game State</div>
+    <div class="ctrl-tab"       data-tab="panel">Info Panel</div>
+    <div class="ctrl-tab"       data-tab="sponsor">Logo Spot</div>
+  </div>
+
+  <div class="ctrl-panes">
+
+    <!-- ── TEAMS ── -->
+    <div class="ctrl-pane active" id="tab-teams" style="padding:0;width:100%;">
+      <div class="teams-split">
+
+        <!-- AWAY column -->
+        <div class="team-col">
+          <div class="team-col-header"><span>🏈 Away Team</span></div>
+
+          <!-- Customization -->
+          <div class="team-col-section">
+            <div class="fg">
+              <label>Team Name</label>
+              <input type="text" id="awayPitcher" value="AWAY TEAM">
+            </div>
+            <div class="fg">
+              <label>BG Gradient</label>
+              <div class="color-pair">
+                <div class="csw"><input type="color" id="awayC1" value="#1b0e38" oninput="updateBug()"><span>Start</span></div>
+                <span class="carr">→</span>
+                <div class="csw"><input type="color" id="awayC2" value="#341070" oninput="updateBug()"><span>End</span></div>
+              </div>
+            </div>
+            <div class="fg logo-mode-row">
+              <label>Logo Type</label>
+              <select id="awayLogoMode" onchange="onLogoModeChange('away')">
+                <option value="image">Image</option>
+                <option value="text">Text</option>
+              </select>
+            </div>
+            <div class="logo-mode-fields" id="awayLogoImageFields">
+              <div class="fg">
+                <label>Image</label>
+                <div class="upload-widget">
+                  <div class="uf-wrap">
+                    <span class="uf-face" id="awayUpFace">↑ Upload</span>
+                    <input type="file" accept="image/*" onchange="handleUpload('away',this)">
+                  </div>
+                  <button class="clear-btn" onclick="clearLogo('away')">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="logo-mode-fields" id="awayLogoTextFields" style="display:none;">
+              <div class="fg">
+                <label>Logo Text</label>
+                <input type="text" id="awayLogoText" value="" placeholder="e.g. GB" maxlength="4" oninput="updateBug()">
+              </div>
+              <div class="fg">
+                <label>Text Color</label>
+                <div class="color-pair">
+                  <div class="csw"><input type="color" id="awayLogoTextColor" value="#ffffff" oninput="updateBug()"><span>Color</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-col-divider"></div>
+
+          <!-- Scoring & Timeout -->
+          <div class="team-col-section">
+            <div class="fg">
+              <label>Score</label>
+              <div class="stepper">
+                <button class="step-btn" onclick="changeScore('away',-1)">−</button>
+                <input type="number" id="awayScore" value="0" min="0">
+                <button class="step-btn" onclick="changeScore('away',1)">+</button>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Quick Score</label>
+              <div class="quick-btns" style="flex-wrap:wrap;gap:3px;">
+                <button class="qbtn qbtn-1" id="awayQbtn1" onclick="changeScore('away',3)">FG +3</button>
+                <button class="qbtn qbtn-2" id="awayQbtn2" onclick="changeScore('away',6)">TD +6</button>
+                <button class="qbtn qbtn-3" id="awayQbtn3" onclick="changeScore('away',7)">TD+XP +7</button>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Timeout</label>
+              <div class="check-row">
+                <label class="chk">
+                  <input type="checkbox" id="awayTimeout" onchange="updateBug()">
+                  <span>Timeout called</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- separator -->
+        <div class="teams-col-separator"></div>
+
+        <!-- HOME column -->
+        <div class="team-col">
+          <div class="team-col-header"><span>🏠 Home Team</span></div>
+
+          <!-- Customization -->
+          <div class="team-col-section">
+            <div class="fg">
+              <label>Team Name</label>
+              <input type="text" id="homeBatter" value="HOME TEAM">
+            </div>
+            <div class="fg">
+              <label>BG Gradient</label>
+              <div class="color-pair">
+                <div class="csw"><input type="color" id="homeC1" value="#0a1e40" oninput="updateBug()"><span>Start</span></div>
+                <span class="carr">→</span>
+                <div class="csw"><input type="color" id="homeC2" value="#0e3472" oninput="updateBug()"><span>End</span></div>
+              </div>
+            </div>
+            <div class="fg logo-mode-row">
+              <label>Logo Type</label>
+              <select id="homeLogoMode" onchange="onLogoModeChange('home')">
+                <option value="image">Image</option>
+                <option value="text">Text</option>
+              </select>
+            </div>
+            <div class="logo-mode-fields" id="homeLogoImageFields">
+              <div class="fg">
+                <label>Image</label>
+                <div class="upload-widget">
+                  <div class="uf-wrap">
+                    <span class="uf-face" id="homeUpFace">↑ Upload</span>
+                    <input type="file" accept="image/*" onchange="handleUpload('home',this)">
+                  </div>
+                  <button class="clear-btn" onclick="clearLogo('home')">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="logo-mode-fields" id="homeLogoTextFields" style="display:none;">
+              <div class="fg">
+                <label>Logo Text</label>
+                <input type="text" id="homeLogoText" value="" placeholder="e.g. NE" maxlength="4" oninput="updateBug()">
+              </div>
+              <div class="fg">
+                <label>Text Color</label>
+                <div class="color-pair">
+                  <div class="csw"><input type="color" id="homeLogoTextColor" value="#ffffff" oninput="updateBug()"><span>Color</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-col-divider"></div>
+
+          <!-- Scoring & Timeout -->
+          <div class="team-col-section">
+            <div class="fg">
+              <label>Score</label>
+              <div class="stepper">
+                <button class="step-btn" onclick="changeScore('home',-1)">−</button>
+                <input type="number" id="homeScore" value="0" min="0">
+                <button class="step-btn" onclick="changeScore('home',1)">+</button>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Quick Score</label>
+              <div class="quick-btns" style="flex-wrap:wrap;gap:3px;">
+                <button class="qbtn qbtn-1" id="homeQbtn1" onclick="changeScore('home',3)">FG +3</button>
+                <button class="qbtn qbtn-2" id="homeQbtn2" onclick="changeScore('home',6)">TD +6</button>
+                <button class="qbtn qbtn-3" id="homeQbtn3" onclick="changeScore('home',7)">TD+XP +7</button>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Timeout</label>
+              <div class="check-row">
+                <label class="chk">
+                  <input type="checkbox" id="homeTimeout" onchange="updateBug()">
+                  <span>Timeout called</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── GAME STATE ── -->
+    <div class="ctrl-pane" id="tab-game">
+
+      <!-- PRE-GAME -->
+      <div class="fg">
+        <label>Pre-Game</label>
+        <div class="check-row">
+          <label class="chk">
+            <input type="checkbox" id="isPreGame" onchange="onPreGameToggle()">
+            <span>Show pre-game</span>
+          </label>
+        </div>
+      </div>
+      <div class="fg fg-conditional" id="preGameTextField">
+        <label>Custom Text</label>
+        <input type="text" id="preGameText" value="GAME STARTS @ 4 P.M." class="w-xl" placeholder="e.g. STARTS @ 4 P.M.">
+      </div>
+
+      <div class="pdiv"></div>
+
+      <!-- FINAL -->
+      <div class="fg">
+        <label>Final</label>
+        <div class="check-row">
+          <label class="chk">
+            <input type="checkbox" id="isFinal" onchange="onFinalToggle()">
+            <span>Game is Final</span>
+          </label>
+        </div>
+      </div>
+      <div class="fg fg-conditional" id="finalTextField">
+        <label>Final Text</label>
+        <input type="text" id="finalText" value="FINAL" class="w-md" placeholder="e.g. FINAL / FINAL OT">
+      </div>
+
+      <div class="pdiv"></div>
+
+      <div id="liveGameFields" style="display:contents;">
+        <div class="fg">
+          <label>Quarter</label>
+          <div class="quarter-btns">
+            <button class="qtr-btn active" id="qbtn-1"  onclick="setQuarter('1')" >1ST</button>
+            <button class="qtr-btn" id="qbtn-2"  onclick="setQuarter('2')" >2ND</button>
+            <button class="qtr-btn" id="qbtn-HT" onclick="setQuarter('HT')">HALF</button>
+            <button class="qtr-btn" id="qbtn-3"  onclick="setQuarter('3')" >3RD</button>
+            <button class="qtr-btn" id="qbtn-4"  onclick="setQuarter('4')">4TH</button>
+            <button class="qtr-btn" id="qbtn-OT" onclick="setQuarter('OT')">OT</button>
+          </div>
+        </div>
+        <div class="pdiv"></div>
+        <div class="fg">
+          <label>End of Period</label>
+          <div class="check-row">
+            <label class="chk">
+              <input type="checkbox" id="isEndOf" onchange="onEndOfToggle()">
+              <span>End of quarter</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CLOCK DIVIDER ── -->
+      <div style="width:100%;height:1px;background:var(--border);margin:4px 0;flex-basis:100%;"></div>
+
+      <!-- ── GAME CLOCK CONTROLS ── -->
+      <div class="fg">
+        <label>Clock</label>
+        <div class="check-row">
+          <label class="chk">
+            <input type="checkbox" id="clockVisible" checked onchange="toggleClockVisible()">
+            <span>Show clock</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pdiv"></div>
+
+      <div class="fg">
+        <label>Direction</label>
+        <select id="clockDirection" class="w-md" onchange="onClockDirectionChange()">
+          <option value="down">Count Down</option>
+          <option value="up">Count Up</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Set Time</label>
+        <div class="stepper" style="gap:3px;">
+          <input type="number" id="clockSetMin" value="15" min="0" max="99" style="width:46px;text-align:center;" oninput="onClockManualSet()">
+          <span style="font-size:16px;font-weight:900;color:var(--text2);line-height:32px;">:</span>
+          <input type="number" id="clockSetSec" value="00" min="0" max="59" style="width:46px;text-align:center;" oninput="onClockManualSet()">
+        </div>
+      </div>
+
+      <div class="pdiv"></div>
+
+      <div class="fg">
+        <label>Controls</label>
+        <div style="display:flex;gap:4px;">
+          <button class="qbtn" id="clockPlayBtn" onclick="clockPlay()" style="background:#22c55e;color:#fff;min-width:52px;">▶ Play</button>
+          <button class="qbtn" id="clockPauseBtn" onclick="clockPause()" style="background:#f59e0b;color:#fff;min-width:52px;">⏸ Pause</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Quick Set</label>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="qbtn" onclick="clockQuickSet(15,0)" style="background:#374151;color:#d1d5db;min-width:44px;font-size:11px;">15:00</button>
+          <button class="qbtn" onclick="clockQuickSet(12,0)" style="background:#374151;color:#d1d5db;min-width:44px;font-size:11px;">12:00</button>
+          <button class="qbtn" onclick="clockQuickSet(10,0)" style="background:#374151;color:#d1d5db;min-width:44px;font-size:11px;">10:00</button>
+          <button class="qbtn" onclick="clockQuickSet(5,0)"  style="background:#374151;color:#d1d5db;min-width:44px;font-size:11px;">5:00</button>
+          <button class="qbtn" onclick="clockQuickSet(2,0)"  style="background:#374151;color:#d1d5db;min-width:44px;font-size:11px;">2:00</button>
+          <button class="qbtn" onclick="clockQuickSet(1,0)"  style="background:#374151;color:#d1d5db;min-width:44px;font-size:11px;">1:00</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="ctrl-pane" id="tab-panel">
+      <div style="width:100%;display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:0;">
+          <div class="sub-tabs" id="subTabs">
+            <div class="sub-tab active" data-sub="matchup">📋 Records</div>
+            <div class="sub-tab"       data-sub="banner">📝 Text Banner</div>
+            <div class="sub-tab"       data-sub="imgbanner">🖼 Image Banner</div>
+            <div class="sub-tab"       data-sub="ticker">📜 Scrolling Text</div>
+            <div class="sub-tab"       data-sub="autocycle">🔄 Auto-Cycle</div>
+          </div>
+          <button class="show-btn" id="showPanelBtn" onclick="activatePanel()" style="margin-left:12px;flex-shrink:0;">
+            ▶ Show This Panel
+          </button>
+        </div>
+
+        <!-- RECORDS sub-pane -->
+        <div class="sub-pane active" id="sub-matchup">
+          <div class="fg">
+            <label>Away W</label>
+            <input type="number" id="recAwayW" value="34" class="w-xs" min="0">
+          </div>
+          <div class="fg">
+            <label>Away L</label>
+            <input type="number" id="recAwayL" value="18" class="w-xs" min="0">
+          </div>
+          <div class="fg">
+            <label>Away Streak</label>
+            <input type="text" id="recAwayStreak" value="W3" class="w-sm" placeholder="W3 / L2">
+          </div>
+          <div class="pdiv"></div>
+          <div class="fg">
+            <label>Home W</label>
+            <input type="number" id="recHomeW" value="40" class="w-xs" min="0">
+          </div>
+          <div class="fg">
+            <label>Home L</label>
+            <input type="number" id="recHomeL" value="12" class="w-xs" min="0">
+          </div>
+          <div class="fg">
+            <label>Home Streak</label>
+            <input type="text" id="recHomeStreak" value="W6" class="w-sm" placeholder="W6 / L1">
+          </div>
+        </div>
+
+        <!-- TEXT BANNER sub-pane -->
+        <div class="sub-pane" id="sub-banner">
+          <div class="fg">
+            <label>Title</label>
+            <input type="text" id="bannerTitle" value="Sports Game Title Text" class="w-lg">
+          </div>
+          <div class="fg">
+            <label>Subtitle</label>
+            <input type="text" id="bannerSub" value="Subtitle Text" class="w-lg">
+          </div>
+        </div>
+
+        <!-- IMAGE BANNER sub-pane -->
+        <div class="sub-pane" id="sub-imgbanner">
+          <div class="fg">
+            <label>Banner 1</label>
+            <div class="upload-widget">
+              <button class="slot-select-btn selected" id="imgSlotBtn1" onclick="selectImgSlot(1)" title="Show Banner 1">✓</button>
+              <div class="uf-wrap">
+                <span class="uf-face" id="bannerImgFace">↑ Upload Image</span>
+                <input type="file" accept="image/*" onchange="handleBannerImg(1,this)">
+              </div>
+              <button class="clear-btn" onclick="clearBannerImg(1)">✕</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Banner 2</label>
+            <div class="upload-widget">
+              <button class="slot-select-btn" id="imgSlotBtn2" onclick="selectImgSlot(2)" title="Show Banner 2">✓</button>
+              <div class="uf-wrap">
+                <span class="uf-face" id="bannerImgFace2">↑ Upload Image</span>
+                <input type="file" accept="image/*" onchange="handleBannerImg(2,this)">
+              </div>
+              <button class="clear-btn" onclick="clearBannerImg(2)">✕</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Banner 3</label>
+            <div class="upload-widget">
+              <button class="slot-select-btn" id="imgSlotBtn3" onclick="selectImgSlot(3)" title="Show Banner 3">✓</button>
+              <div class="uf-wrap">
+                <span class="uf-face" id="bannerImgFace3">↑ Upload Image</span>
+                <input type="file" accept="image/*" onchange="handleBannerImg(3,this)">
+              </div>
+              <button class="clear-btn" onclick="clearBannerImg(3)">✕</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Banner 4</label>
+            <div class="upload-widget">
+              <button class="slot-select-btn" id="imgSlotBtn4" onclick="selectImgSlot(4)" title="Show Banner 4">✓</button>
+              <div class="uf-wrap">
+                <span class="uf-face" id="bannerImgFace4">↑ Upload Image</span>
+                <input type="file" accept="image/*" onchange="handleBannerImg(4,this)">
+              </div>
+              <button class="clear-btn" onclick="clearBannerImg(4)">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCROLLING TEXT sub-pane -->
+        <div class="sub-pane" id="sub-ticker">
+          <div class="fg" style="flex:1;min-width:200px;">
+            <label>Scrolling Text</label>
+            <input type="text" id="tickerText" value="WELCOME TO THE GAME — PRESENTED BY SCOREBUG STUDIO" class="w-xl" style="width:100%;">
+          </div>
+          <div class="fg">
+            <label>Speed</label>
+            <select id="tickerSpeed" class="w-md">
+              <option value="32" selected>Very Fast</option>
+              <option value="26">Fast</option>
+              <option value="20">Medium</option>
+              <option value="18">Slow</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- AUTO-CYCLE sub-pane -->
+        <div class="sub-pane" id="sub-autocycle">
+          <div class="fg" style="width:100%;">
+            <label>Include in Cycle</label>
+            <div class="cycle-check-group" style="margin-top:4px;">
+              <label class="chk"><input type="checkbox" id="cycleRecords"   checked><span>Records</span></label>
+              <label class="chk"><input type="checkbox" id="cycleBanner"    checked><span>Text Banner</span></label>
+              <label class="chk"><input type="checkbox" id="cycleImg"       checked><span>Image 1</span></label>
+              <label class="chk"><input type="checkbox" id="cycleImg2"      checked><span>Image 2</span></label>
+              <label class="chk"><input type="checkbox" id="cycleImg3"      checked><span>Image 3</span></label>
+              <label class="chk"><input type="checkbox" id="cycleImg4"      checked><span>Image 4</span></label>
+              <label class="chk"><input type="checkbox" id="cycleTicker"    checked><span>Scrolling Text</span></label>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Seconds Per Panel</label>
+            <div class="stepper">
+              <button class="step-btn" onclick="adjustCycleTime(-5)">−</button>
+              <input type="number" id="cycleTime" value="15" min="5" max="120" style="width:54px;text-align:center;">
+              <button class="step-btn" onclick="adjustCycleTime(5)">+</button>
+            </div>
+          </div>
+          <div class="fg" style="align-self:flex-end;">
+            <label>&nbsp;</label>
+            <button class="cycle-toggle-btn" id="cycleToggleBtn" onclick="toggleCycle()">▶ Start Cycling</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ctrl-panes -->
+
+    <!-- ── SPONSOR BUG ── -->
+    <div class="ctrl-pane" id="tab-sponsor">
+      <div class="fg">
+        <label>Background Color</label>
+        <div class="color-pair">
+          <div class="csw"><input type="color" id="fdBgColor" value="#1e60ed" oninput="updateBug()"><span>Color</span></div>
+        </div>
+      </div>
+      <div class="pdiv"></div>
+      <div class="fg">
+        <label>Logo Image</label>
+        <div class="upload-widget">
+          <div class="uf-wrap">
+            <span class="uf-face" id="fdUpFace">↑ Upload</span>
+            <input type="file" accept="image/*" onchange="handleFdUpload(this)">
+          </div>
+          <button class="clear-btn" onclick="clearFdLogo()">✕</button>
+        </div>
+      </div>
+      <div style="align-self:center;color:var(--text3);font-size:12px;margin-left:4px;">
+        If no image, shows "FD" text fallback.
+      </div>
+    </div>
+
+</div><!-- /gpane-scorebug -->
+
+  <!-- ── TRANSITION SCORE GRAPHIC PANE ── -->
+  <div class="graphic-pane" id="gpane-transition">
+    <div class="ctrl-panes" style="flex-direction:column;gap:0;padding:0;">
+
+      <!-- sub-row: network bar settings -->
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px 20px;border-bottom:1px solid var(--border);">
+        <div class="fg">
+          <label>Network Logo</label>
+          <div class="upload-widget">
+            <div class="uf-wrap">
+              <span class="uf-face" id="tgNetUpFace">↑ Upload</span>
+              <input type="file" accept="image/*" onchange="handleTgNetUpload(this)">
+            </div>
+            <button class="clear-btn" onclick="clearTgNet()">✕</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Bar Gradient</label>
+          <div class="color-pair">
+            <div class="csw"><input type="color" id="tgNetC1" value="#0d1f3c" oninput="renderTransGraphic()"><span>Start</span></div>
+            <span class="carr">→</span>
+            <div class="csw"><input type="color" id="tgNetC2" value="#1a3a6b" oninput="renderTransGraphic()"><span>End</span></div>
+          </div>
+        </div>
+        <div style="align-self:center;color:var(--text3);font-size:11px;font-style:italic;">Team colors & logos sync from Scorebug tab</div>
+        <div class="pdiv"></div>
+        <div class="fg">
+          <label>Show Columns</label>
+          <div class="check-row">
+            <label class="chk">
+              <input type="checkbox" id="tgShowCol3" checked onchange="renderTransGraphic()">
+              <span id="tgCol3ChkLabel">Fouls</span>
+            </label>
+            <label class="chk">
+              <input type="checkbox" id="tgShowCol4" checked onchange="renderTransGraphic()">
+              <span id="tgCol4ChkLabel">Timeouts</span>
+            </label>
+          </div>
+        </div>
+        <div class="pdiv"></div>
+        <div class="fg">
+          <label>Col 3 Label</label>
+          <input type="text" id="tgCol3Label" value="FOULS" class="w-sm" oninput="renderTransGraphic()">
+        </div>
+        <div class="fg">
+          <label>Away Col 3</label>
+          <div class="stepper">
+            <button class="step-btn" onclick="changeTgStat('away','col3',-1)">−</button>
+            <input type="number" id="tgAwayCol3" value="0" min="0" class="w-xs">
+            <button class="step-btn" onclick="changeTgStat('away','col3',1)">+</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Home Col 3</label>
+          <div class="stepper">
+            <button class="step-btn" onclick="changeTgStat('home','col3',-1)">−</button>
+            <input type="number" id="tgHomeCol3" value="0" min="0" class="w-xs">
+            <button class="step-btn" onclick="changeTgStat('home','col3',1)">+</button>
+          </div>
+        </div>
+        <div class="pdiv"></div>
+        <div class="fg">
+          <label>Col 4 Label</label>
+          <input type="text" id="tgCol4Label" value="TIMEOUTS" class="w-sm" oninput="renderTransGraphic()">
+        </div>
+        <div class="fg">
+          <label>Away Col 4</label>
+          <div class="stepper">
+            <button class="step-btn" onclick="changeTgStat('away','col4',-1)">−</button>
+            <input type="number" id="tgAwayCol4" value="3" min="0" class="w-xs">
+            <button class="step-btn" onclick="changeTgStat('away','col4',1)">+</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Home Col 4</label>
+          <div class="stepper">
+            <button class="step-btn" onclick="changeTgStat('home','col4',-1)">−</button>
+            <input type="number" id="tgHomeCol4" value="3" min="0" class="w-xs">
+            <button class="step-btn" onclick="changeTgStat('home','col4',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── BANNER GRAPHIC PANE ── -->
+  <div class="graphic-pane" id="gpane-banner">
+    <div class="ctrl-panes" style="flex-direction:column;gap:0;padding:0;">
+
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px 20px;">
+
+        <!-- Type selector -->
+        <div class="fg">
+          <label>Banner Type</label>
+          <select id="bnType" class="w-lg" onchange="renderBannerGraphic()">
+            <option value="logo">Logo + Name + Text</option>
+            <option value="text">Text Only</option>
+            <option value="imgonly">Image Only</option>
+            <option value="promo">Promo Card</option>
+          </select>
+        </div>
+
+        <!-- BG color -->
+        <div class="fg">
+          <label>BG Color</label>
+          <div class="color-pair">
+            <div class="csw"><input type="color" id="bnBgC1" value="#0d1f3c" oninput="renderBannerGraphic()"><span>Start</span></div>
+            <span class="carr">→</span>
+            <div class="csw"><input type="color" id="bnBgC2" value="#1a3a6b" oninput="renderBannerGraphic()"><span>End</span></div>
+          </div>
+        </div>
+
+        <div class="pdiv"></div>
+
+        <!-- TYPE A fields -->
+        <div id="bnLogoFields" style="display:contents;">
+
+          <div class="fg">
+            <label>Logo Source</label>
+            <select id="bnLogoSource" class="w-md" onchange="renderBannerGraphic()">
+              <option value="custom">Custom Upload</option>
+              <option value="away">Away (from Scorebug)</option>
+              <option value="home">Home (from Scorebug)</option>
+            </select>
+          </div>
+
+          <div class="fg" id="bnCustomLogoField">
+            <label>Upload Logo</label>
+            <div class="upload-widget">
+              <div class="uf-wrap">
+                <span class="uf-face" id="bnLogoFace">↑ Upload</span>
+                <input type="file" accept="image/*" onchange="handleBnLogoUpload(this)">
+              </div>
+              <button class="clear-btn" onclick="clearBnLogo()">✕</button>
+            </div>
+          </div>
+
+          <div class="pdiv"></div>
+
+          <div class="fg">
+            <label>Show Name</label>
+            <div class="check-row">
+              <label class="chk">
+                <input type="checkbox" id="bnShowName" checked onchange="renderBannerGraphic()">
+                <span>Visible</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="bnNameFields" style="display:contents;">
+            <div class="fg">
+              <label>Top Label</label>
+              <input type="text" id="bnTopLabel" value="PAT" class="w-md" oninput="renderBannerGraphic()">
+            </div>
+            <div class="fg">
+              <label>Name / Bottom</label>
+              <input type="text" id="bnNameMain" value="MURPHY" class="w-lg" oninput="renderBannerGraphic()">
+            </div>
+          </div>
+
+          <div class="pdiv"></div>
+
+          <div class="fg">
+            <label>Show Text Panel</label>
+            <div class="check-row">
+              <label class="chk">
+                <input type="checkbox" id="bnShowText" checked onchange="renderBannerGraphic()">
+                <span>Visible</span>
+              </label>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Panel Text</label>
+            <input type="text" id="bnPanelText" value="BREWERS POST ALL-STAR BREAK PUSH" class="w-xl" oninput="renderBannerGraphic()">
+          </div>
+
+        </div>
+
+        <!-- TYPE B fields -->
+        <div id="bnTextFields" style="display:none;">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">
+            <div class="fg">
+              <label>Title</label>
+              <input type="text" id="bnCenterTitle" value="SOPHIA MINNAERT" class="w-xl" oninput="renderBannerGraphic()">
+            </div>
+            <div class="fg">
+              <label>Subtitle</label>
+              <input type="text" id="bnCenterSub" value="@SOPHIAMINNAERT" class="w-xl" oninput="renderBannerGraphic()">
+            </div>
+          </div>
+        </div>
+
+        <!-- TYPE C: Image Only fields -->
+        <div id="bnImgFields" style="display:none;">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">
+            <div class="fg">
+              <label>Image</label>
+              <div class="upload-widget">
+                <div class="uf-wrap">
+                  <span class="uf-face" id="bnImgOnlyFace">↑ Upload Image</span>
+                  <input type="file" accept="image/*" onchange="handleBnImgOnly(this)">
+                </div>
+                <button class="clear-btn" onclick="clearBnImgOnly()">✕</button>
+              </div>
+            </div>
+            <div style="align-self:center;color:var(--text3);font-size:12px;">Image displayed on white background.</div>
+          </div>
+        </div>
+
+        <!-- TYPE D: Promo Card fields -->
+        <div id="bnPromoFields" style="display:none;">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">
+            <div class="fg">
+              <label>Header Title</label>
+              <input type="text" id="pcTitle" value="MIKE TROUT 400TH HOME RUN" class="w-xl" oninput="renderBannerGraphic()">
+            </div>
+            <div class="fg">
+              <label>Header Subtitle</label>
+              <input type="text" id="pcSubtitle" value="BOBBLEHEAD" class="w-lg" oninput="renderBannerGraphic()">
+            </div>
+            <div class="pdiv"></div>
+            <div class="fg">
+              <label>Header BG</label>
+              <div class="color-pair">
+                <div class="csw"><input type="color" id="pcHeaderC1" value="#0d1f3c" oninput="renderBannerGraphic()"><span>Start</span></div>
+                <span class="carr">→</span>
+                <div class="csw"><input type="color" id="pcHeaderC2" value="#1a3a6b" oninput="renderBannerGraphic()"><span>End</span></div>
+              </div>
+            </div>
+            <div class="pdiv"></div>
+            <div class="fg">
+              <label>Card Image</label>
+              <div class="upload-widget">
+                <div class="uf-wrap">
+                  <span class="uf-face" id="pcImgFace">↑ Upload</span>
+                  <input type="file" accept="image/*" onchange="handlePcImg(this)">
+                </div>
+                <button class="clear-btn" onclick="clearPcImg()">✕</button>
+              </div>
+            </div>
+            <div class="pdiv"></div>
+            <div class="fg">
+              <label>Bottom Text</label>
+              <input type="text" id="pcFooterText" value="ANGELS.COM/PROMOTIONS" class="w-xl" oninput="renderBannerGraphic()">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INTRO GRAPHIC PANE ── -->
+  <div class="graphic-pane" id="gpane-intro">
+    <div class="ctrl-panes" style="flex-direction:column;gap:0;padding:0;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px 20px;">
+
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;width:100%;margin-bottom:2px;">
+          Team logos &amp; colors sync from the Scorebug tab automatically.
+        </div>
+
+        <div class="fg">
+          <label>Away Record</label>
+          <input type="text" id="igAwayRecord" value="7-5" class="w-sm" oninput="renderIntroGraphic()">
+        </div>
+        <div class="fg">
+          <label>Away City</label>
+          <input type="text" id="igAwayCity" value="ATLANTA" class="w-md" oninput="renderIntroGraphic()">
+        </div>
+        <div class="fg">
+          <label>Away Team Name</label>
+          <input type="text" id="igAwayName" value="BRAVES" class="w-lg" oninput="renderIntroGraphic()">
+        </div>
+
+        <div class="pdiv"></div>
+
+        <div class="fg">
+          <label>Home Record</label>
+          <input type="text" id="igHomeRecord" value="6-6" class="w-sm" oninput="renderIntroGraphic()">
+        </div>
+        <div class="fg">
+          <label>Home City</label>
+          <input type="text" id="igHomeCity" value="LOS ANGELES" class="w-md" oninput="renderIntroGraphic()">
+        </div>
+        <div class="fg">
+          <label>Home Team Name</label>
+          <input type="text" id="igHomeName" value="ANGELS" class="w-lg" oninput="renderIntroGraphic()">
+        </div>
+
+        <div class="pdiv"></div>
+
+        <div class="fg">
+          <label>Venue</label>
+          <input type="text" id="igVenue" value="ANGEL STADIUM" class="w-lg" oninput="renderIntroGraphic()">
+        </div>
+        <div class="fg">
+          <label>Sport</label>
+          <input type="text" id="igLocation" value="ANAHEIM, CALIFORNIA" class="w-lg" oninput="renderIntroGraphic()">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AD BOARD GRAPHIC PANE ── -->
+  <div class="graphic-pane" id="gpane-adboard">
+    <div class="ctrl-panes" style="flex-direction:column;gap:0;padding:0;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px 20px;">
+
+        <!-- BG colors -->
+        <div class="fg">
+          <label>Header BG</label>
+          <div class="color-pair">
+            <div class="csw"><input type="color" id="abHeaderC1" value="#0d1f3c" oninput="renderAdBoard()"><span>Start</span></div>
+            <span class="carr">→</span>
+            <div class="csw"><input type="color" id="abHeaderC2" value="#1a3a6b" oninput="renderAdBoard()"><span>End</span></div>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Body BG</label>
+          <div class="color-pair">
+            <div class="csw"><input type="color" id="abBodyBg" value="#111c2b" oninput="renderAdBoard()"><span>Color</span></div>
+          </div>
+        </div>
+
+        <div class="pdiv"></div>
+
+        <!-- Header content mode -->
+        <div class="fg">
+          <label>Header Content</label>
+          <select id="abHeaderMode" class="w-lg" onchange="onAbHeaderModeChange()">
+            <option value="hidden">Hidden (no header)</option>
+            <option value="sponsorlogo">Sponsor Logo (from Logo Spot)</option>
+            <option value="customimg">Custom Image Upload</option>
+            <option value="text">Custom Text</option>
+          </select>
+        </div>
+
+        <!-- Custom header image (shown when mode=customimg) -->
+        <div class="fg" id="abHeaderImgField" style="display:none;">
+          <label>Header Image</label>
+          <div class="upload-widget">
+            <div class="uf-wrap">
+              <span class="uf-face" id="abHeaderImgFace">↑ Upload</span>
+              <input type="file" accept="image/*" onchange="handleAbHeaderImg(this)">
+            </div>
+            <button class="clear-btn" onclick="clearAbHeaderImg()">✕</button>
+          </div>
+        </div>
+
+        <!-- Custom header text (shown when mode=text) -->
+        <div class="fg" id="abHeaderTextField" style="display:none;">
+          <label>Header Text</label>
+          <input type="text" id="abHeaderText" value="NETWORK" class="w-md" oninput="renderAdBoard()">
+        </div>
+
+        <div class="pdiv"></div>
+
+        <!-- Ad Slots -->
+        <div class="fg">
+          <label>Ad Slot 1</label>
+          <div class="upload-widget">
+            <div class="uf-wrap">
+              <span class="uf-face" id="abFace1">↑ Upload</span>
+              <input type="file" accept="image/*" onchange="handleAbUpload(1,this)">
+            </div>
+            <button class="clear-btn" onclick="clearAbSlot(1)">✕</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Ad Slot 2</label>
+          <div class="upload-widget">
+            <div class="uf-wrap">
+              <span class="uf-face" id="abFace2">↑ Upload</span>
+              <input type="file" accept="image/*" onchange="handleAbUpload(2,this)">
+            </div>
+            <button class="clear-btn" onclick="clearAbSlot(2)">✕</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Ad Slot 3</label>
+          <div class="upload-widget">
+            <div class="uf-wrap">
+              <span class="uf-face" id="abFace3">↑ Upload</span>
+              <input type="file" accept="image/*" onchange="handleAbUpload(3,this)">
+            </div>
+            <button class="clear-btn" onclick="clearAbSlot(3)">✕</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Ad Slot 4</label>
+          <div class="upload-widget">
+            <div class="uf-wrap">
+              <span class="uf-face" id="abFace4">↑ Upload</span>
+              <input type="file" accept="image/*" onchange="handleAbUpload(4,this)">
+            </div>
+            <button class="clear-btn" onclick="clearAbSlot(4)">✕</button>
+          </div>
+        </div>
+
+        <div class="pdiv"></div>
+
+        <!-- Active slot selector -->
+        <div class="fg">
+          <label>Show Slot</label>
+          <div style="display:flex;gap:4px;">
+            <button class="qbtn" id="abCtrlBtn0" onclick="abSelectSlot(0)" style="background:var(--accent);color:#fff;min-width:60px;font-size:11px;">DEFAULT</button>
+            <button class="qbtn" id="abCtrlBtn1" onclick="abSelectSlot(1)" style="background:#374151;color:#d1d5db;min-width:46px;font-size:11px;">AD 1</button>
+            <button class="qbtn" id="abCtrlBtn2" onclick="abSelectSlot(2)" style="background:#374151;color:#d1d5db;min-width:46px;font-size:11px;">AD 2</button>
+            <button class="qbtn" id="abCtrlBtn3" onclick="abSelectSlot(3)" style="background:#374151;color:#d1d5db;min-width:46px;font-size:11px;">AD 3</button>
+            <button class="qbtn" id="abCtrlBtn4" onclick="abSelectSlot(4)" style="background:#374151;color:#d1d5db;min-width:46px;font-size:11px;">AD 4</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /controls -->
+
+<!-- ════════════════════════════════════════
+     AD SPACE BOARD GRAPHIC
+════════════════════════════════════════ -->
+<div id="adboard-outer">
+  <div id="adboard-frame">
+    <div id="adboard">
+      <!-- Header: syncs sponsor logo from scorebug -->
+      <div class="ab-header" id="abHeader">
+        <div class="ab-header-logo" id="abHeaderLogo">
+          <span class="ab-header-fallback" id="abHeaderFallback">LOGO</span>
+        </div>
+      </div>
+
+      <!-- Content area -->
+      <div class="ab-content" id="abContent">
+        <!-- populated by renderAdBoard() -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     SCOREBUG
+════════════════════════════════════════ -->
+<div id="scorebug-outer">
+  <div id="scorebug">
+
+    <!-- AWAY -->
+    <div class="team-block" id="awayBlock">
+      <div class="block-label" id="awayLabel">
+        <span class="label-team" id="awayLabelTeam">BEARS</span>
+        <span class="label-timeout">TIMEOUT CALLED</span>
+      </div>
+      <div class="team-score-row">
+        <div class="team-logo-area" id="awayLogoArea"></div>
+        <div class="team-score" id="awayScoreEl" data-val="0"><div class="score-track"><span class="score-digit">0</span></div></div>
+      </div>
+    </div>
+    <div class="vdiv"></div>
+
+    <!-- HOME -->
+    <div class="team-block" id="homeBlock">
+      <div class="block-label" id="homeLabel">
+        <span class="label-team" id="homeLabelTeam">PACKERS</span>
+        <span class="label-timeout">TIMEOUT CALLED</span>
+      </div>
+      <div class="team-score-row">
+        <div class="team-logo-area" id="homeLogoArea"></div>
+        <div class="team-score" id="homeScoreEl" data-val="0"><div class="score-track"><span class="score-digit">0</span></div></div>
+      </div>
+    </div>
+    <div class="vdiv"></div>
+
+    <!-- CENTER -->
+    <div class="center-col" id="centerCol">
+
+      <!-- FINAL overlay -->
+      <div class="final-overlay" id="finalOverlay">
+        <span class="final-text" id="finalDisplayText">FINAL</span>
+      </div>
+
+      <!-- PRE-GAME overlay -->
+      <div class="pregame-overlay" id="preGameOverlay">
+        <span class="pregame-text" id="preGameDisplayText">GAME STARTS @ 4 P.M.</span>
+      </div>
+
+      <div class="period-display" id="periodDisplay">
+        <div class="period-num" id="periodNum">1</div>
+        <div class="period-lbl" id="periodLbl">QTR</div>
+      </div>
+    </div>
+    <!-- GAME CLOCK -->
+    <div class="game-clock-block" id="gameClockBlock">
+      <div class="clock-time clock-paused" id="clockDisplay">15:00</div>
+      <div class="clock-lbl" id="clockLbl">CLOCK</div>
+    </div>
+
+    <div class="center-divider"></div>
+
+    <!-- FD / SPONSOR -->
+    <div class="fd-area" id="fdArea">
+      <div class="fd-text" id="fdText">LOGO</div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel" id="rightPanel">
+      <div class="cycle-bar-wrap" id="cycleBarWrap" style="display:none;">
+        <div class="cycle-bar" id="cycleBar"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TRANSITION SCORE GRAPHIC -->
+<div id="trans-graphic-outer">
+  <div id="trans-graphic">
+
+    <!-- Network bar -->
+    <div class="tg-network-bar" id="tgNetworkBar">
+      <div id="tgNetworkLogoArea">
+        <span class="tg-network-placeholder">NETWORK LOGO</span>
+      </div>
+    </div>
+
+    <!-- Header row -->
+    <div class="tg-header" id="tgHeader">
+      <div class="tg-header-period" id="tgPeriodLabel">END 1ST</div>
+      <div class="tg-header-col">POINTS</div>
+      <div class="tg-header-col" id="tgCol3Head">FOULS</div>
+      <div class="tg-header-col" id="tgCol4Head">TIMEOUTS</div>
+    </div>
+
+    <!-- Away row -->
+    <div class="tg-row" id="tgAwayRow">
+      <div class="tg-team-cell" id="tgAwayCell">
+        <div class="tg-team-logo" id="tgAwayLogo"></div>
+      </div>
+      <div class="tg-stat-cell"><div class="tg-stat-num" id="tgAwayScore">0</div></div>
+      <div class="tg-stat-cell" id="tgAwayCol3Cell"><div class="tg-stat-num" id="tgAwayCol3Val">0</div></div>
+      <div class="tg-stat-cell" id="tgAwayCol4Cell"><div class="tg-stat-num" id="tgAwayCol4Val">3</div></div>
+    </div>
+
+    <div class="tg-row-divider"></div>
+
+    <!-- Home row -->
+    <div class="tg-row" id="tgHomeRow">
+      <div class="tg-team-cell" id="tgHomeCell">
+        <div class="tg-team-logo" id="tgHomeLogo"></div>
+      </div>
+      <div class="tg-stat-cell"><div class="tg-stat-num" id="tgHomeScore">0</div></div>
+      <div class="tg-stat-cell" id="tgHomeCol3Cell"><div class="tg-stat-num" id="tgHomeCol3Val">0</div></div>
+      <div class="tg-stat-cell" id="tgHomeCol4Cell"><div class="tg-stat-num" id="tgHomeCol4Val">3</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BANNER GRAPHIC -->
+<div id="banner-graphic-outer">
+  <div id="banner-graphic">
+    <!-- rendered by renderBannerGraphic() -->
+  </div>
+</div>
+
+<!-- INTRO GRAPHIC -->
+<div id="intro-graphic-outer">
+  <div id="intro-graphic">
+    <!-- rendered by renderIntroGraphic() -->
+  </div>
+</div>
+
+
+<script>
+const custom    = { away: null, home: null };
+const logoMode  = { away: 'image', home: 'image' }; // 'image' | 'text'
+let bannerImgs  = [null, null, null, null]; // slots 1-4
+let fdImg       = null;
+let activePanel = 'matchup';
+let activeImgSlot = 1; // which image banner slot is selected for manual display
+let currentQuarter = '1'; // '1','2','HT','3','4'
+
+/* ── Sport switcher ── */
+let currentSport = 'football';
+
+const SPORTS = {
+  football:   { icon: '🏈', buttons: [{label:'FG +3', val:3}, {label:'TD +6', val:6}, {label:'TD+XP +7', val:7}] },
+  basketball: { icon: '🏀', buttons: [{label:'+1 FT', val:1}, {label:'+2',    val:2}, {label:'+3',       val:3}] },
+  soccer:     { icon: '⚽', buttons: [{label:'+1',    val:1}, {label:'+2',    val:2}, {label:'+3',       val:3}] },
+};
+
+function toggleSportDropdown() {
+  const btn = document.getElementById('sportIconBtn');
+  const dd  = document.getElementById('sportDropdown');
+  const open = dd.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+function setSport(sport) {
+  currentSport = sport;
+  const cfg = SPORTS[sport];
+
+  // update icon in both places
+  document.getElementById('sportIconBtn').textContent = cfg.icon;
+  document.getElementById('studioIcon').textContent   = cfg.icon;
+
+  // update active state on options
+  document.querySelectorAll('.sport-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.sport === sport);
+  });
+
+  // update quick-score buttons for both teams
+  ['away','home'].forEach(side => {
+    cfg.buttons.forEach((btn, i) => {
+      const el = document.getElementById(`${side}Qbtn${i+1}`);
+      if (!el) return;
+      el.textContent = btn.label;
+      el.onclick = () => changeScore(side, btn.val);
+    });
+  });
+
+  // close dropdown
+  document.getElementById('sportDropdown').classList.remove('open');
+  document.getElementById('sportIconBtn').classList.remove('open');
+}
+
+// close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!document.getElementById('sportSwitcher').contains(e.target)) {
+    document.getElementById('sportDropdown').classList.remove('open');
+    document.getElementById('sportIconBtn').classList.remove('open');
+  }
+});
+
+/* ── Quarter selector ── */
+function setQuarter(q) {
+  if (q === currentQuarter) return;
+  currentQuarter = q;
+  document.querySelectorAll('.qtr-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('qbtn-' + q).classList.add('active');
+  // auto-clear end of quarter when switching periods
+  document.getElementById('isEndOf').checked = false;
+  animatePeriod();
+}
+
+function onEndOfToggle() {
+  const checked = document.getElementById('isEndOf').checked;
+  if (checked) {
+    clockPause();
+    document.getElementById('clockVisible').checked = false;
+    document.getElementById('gameClockBlock').classList.add('clock-hidden');
+  } else {
+    if (document.getElementById('clockVisible').checked)
+      document.getElementById('gameClockBlock').classList.remove('clock-hidden');
+  }
+  animatePeriod();
+}
+
+function animatePeriod() {
+  const el = document.getElementById('periodDisplay');
+  el.classList.remove('period-fade-in', 'period-fade-out');
+  void el.offsetWidth; // reflow
+  el.classList.add('period-fade-out');
+  setTimeout(() => {
+    renderPeriod();
+    renderTransGraphic();
+    el.classList.remove('period-fade-out');
+    void el.offsetWidth;
+    el.classList.add('period-fade-in');
+  }, 150);
+}
+
+function renderPeriod() {
+  const numEl   = document.getElementById('periodNum');
+  const lblEl   = document.getElementById('periodLbl');
+  const isEndOf = document.getElementById('isEndOf').checked;
+
+  lblEl.classList.toggle('end-of', isEndOf);
+
+  if (currentQuarter === 'HT') {
+    numEl.textContent = 'HT';
+    numEl.style.fontSize = '18px';
+    lblEl.textContent = 'HALFTIME';
+  } else if (currentQuarter === 'OT') {
+    numEl.textContent = 'OT';
+    numEl.style.fontSize = '22px';
+    lblEl.textContent = isEndOf ? 'END OF OT' : 'OVERTIME';
+  } else {
+    numEl.textContent = currentQuarter;
+    numEl.style.fontSize = isEndOf ? '22px' : '28px';
+    const labels = { '1':'1ST', '2':'2ND', '3':'3RD', '4':'4TH' };
+    lblEl.textContent = isEndOf ? `END OF ${labels[currentQuarter]} QTR` : 'QTR';
+  }
+}
+
+/* ── Conditional field toggles ── */
+function onPreGameToggle() {
+  const checked = document.getElementById('isPreGame').checked;
+  // Uncheck Final if Pre-Game is checked
+  if (checked) {
+    document.getElementById('isFinal').checked = false;
+    document.getElementById('finalTextField').classList.remove('visible');
+    clockPause();
+    document.getElementById('clockVisible').checked = false;
+    document.getElementById('gameClockBlock').classList.add('clock-hidden');
+  } else {
+    // restore visibility to match the "show clock" checkbox
+    if (document.getElementById('clockVisible').checked)
+      document.getElementById('gameClockBlock').classList.remove('clock-hidden');
+  }
+  document.getElementById('preGameTextField').classList.toggle('visible', checked);
+  updateBug();
+}
+
+function onFinalToggle() {
+  const checked = document.getElementById('isFinal').checked;
+  // Uncheck Pre-Game if Final is checked
+  if (checked) {
+    document.getElementById('isPreGame').checked = false;
+    document.getElementById('preGameTextField').classList.remove('visible');
+    clockPause();
+    document.getElementById('clockVisible').checked = false;
+    document.getElementById('gameClockBlock').classList.add('clock-hidden');
+  } else {
+    if (document.getElementById('clockVisible').checked)
+      document.getElementById('gameClockBlock').classList.remove('clock-hidden');
+  }
+  document.getElementById('finalTextField').classList.toggle('visible', checked);
+  updateBug();
+}
+
+/* ── Logo helpers ── */
+function logoHTML(side) {
+  if (logoMode[side] === 'text') {
+    const txt   = (document.getElementById(side + 'LogoText').value || '').toUpperCase();
+    const color = document.getElementById(side + 'LogoTextColor').value || '#ffffff';
+    if (!txt) return '';
+    // scale font size: 1 char = 22px, 2 = 19px, 3 = 14px, 4 = 11px
+    const sizes = { 1: 22, 2: 19, 3: 14, 4: 11 };
+    const fs = sizes[txt.length] || 11;
+    return `<span class="logo-text" style="font-size:${fs}px;color:${color};">${txt}</span>`;
+  }
+  if (custom[side]) return `<img src="${custom[side]}" alt="" style="width:100%;height:100%;object-fit:contain;">`;
+  return '';
+}
+
+function onLogoModeChange(side) {
+  const mode = document.getElementById(side + 'LogoMode').value;
+  logoMode[side] = mode;
+  document.getElementById(side + 'LogoImageFields').style.display = mode === 'image' ? '' : 'none';
+  document.getElementById(side + 'LogoTextFields').style.display  = mode === 'text'  ? '' : 'none';
+  updateBug();
+}
+
+function handleUpload(side, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    custom[side] = e.target.result;
+    const face = document.getElementById(side + 'UpFace');
+    face.textContent = '\u2713 ' + (file.name.length > 16 ? file.name.slice(0,15)+'\u2026' : file.name);
+    face.classList.add('has-file');
+    updateBug();
+  };
+  reader.readAsDataURL(file);
+}
+function clearLogo(side) {
+  custom[side] = null;
+  const face = document.getElementById(side + 'UpFace');
+  face.textContent = '\u2191 Upload'; face.classList.remove('has-file');
+  updateBug();
+}
+
+/* ── Banner image ── */
+function handleBannerImg(slot, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    bannerImgs[slot - 1] = e.target.result;
+    const faceId = slot === 1 ? 'bannerImgFace' : `bannerImgFace${slot}`;
+    const face = document.getElementById(faceId);
+    face.textContent = '\u2713 ' + (file.name.length > 16 ? file.name.slice(0,15)+'\u2026' : file.name);
+    face.classList.add('has-file');
+    if (activePanel === 'imgbanner' && activeImgSlot === slot) renderPanel(true);
+  };
+  reader.readAsDataURL(file);
+}
+function clearBannerImg(slot) {
+  bannerImgs[slot - 1] = null;
+  const faceId = slot === 1 ? 'bannerImgFace' : `bannerImgFace${slot}`;
+  const face = document.getElementById(faceId);
+  face.textContent = '\u2191 Upload Image'; face.classList.remove('has-file');
+  if (activePanel === 'imgbanner' && activeImgSlot === slot) renderPanel(true);
+}
+
+/* ── FD / Sponsor logo ── */
+function handleFdUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fdImg = e.target.result;
+    const face = document.getElementById('fdUpFace');
+    face.textContent = '\u2713 ' + (file.name.length > 16 ? file.name.slice(0,15)+'\u2026' : file.name);
+    face.classList.add('has-file');
+    updateBug();
+    renderAdBoard();
+  };
+  reader.readAsDataURL(file);
+}
+function clearFdLogo() {
+  fdImg = null;
+  const face = document.getElementById('fdUpFace');
+  face.textContent = '\u2191 Upload'; face.classList.remove('has-file');
+  updateBug();
+  renderAdBoard();
+}
+
+/* ── Score steppers ── */
+function changeScore(side, d) {
+  const el = document.getElementById(side + 'Score');
+  el.value = Math.max(0, +el.value + d);
+  updateBug(side, d > 0 ? 'up' : 'down');
+}
+
+/* ── Main tabs ── */
+document.querySelectorAll('.ctrl-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.ctrl-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── Sub-tabs ── */
+let currentSub = 'matchup';
+document.querySelectorAll('.sub-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    currentSub = tab.dataset.sub;
+    document.getElementById('sub-' + currentSub).classList.add('active');
+    updateShowBtn();
+  });
+});
+
+function updateShowBtn() {
+  const btn = document.getElementById('showPanelBtn');
+  if (currentSub === 'autocycle') {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = '';
+  if (currentSub === activePanel && !isCycling) {
+    btn.textContent = '\u2713 Currently Showing';
+    btn.classList.add('active-mode');
+  } else {
+    btn.textContent = '\u25b6 Show This Panel';
+    btn.classList.remove('active-mode');
+  }
+}
+
+function activatePanel() {
+  if (currentSub === 'autocycle') return; // autocycle tab has its own start button
+  if (isCycling) stopCycle();
+  // all imgbanner sub-tabs map to the same activePanel entry
+  const normalised = currentSub.startsWith('imgbanner') ? 'imgbanner' : currentSub;
+  if (normalised === activePanel) return;
+  activePanel = normalised;
+  renderPanel(true);
+  updateShowBtn();
+}
+
+/* ── Image slot selector ── */
+function selectImgSlot(slot) {
+  activeImgSlot = slot;
+  // update tick button styles
+  for (let i = 1; i <= 4; i++) {
+    const btn = document.getElementById(`imgSlotBtn${i}`);
+    if (btn) btn.classList.toggle('selected', i === slot);
+  }
+  // re-render if image banner is currently showing (not cycling)
+  if (activePanel === 'imgbanner' && !isCycling) renderPanel(true);
+}
+
+/* ── Render right panel ── */
+function renderPanel(animate) {
+  const panel = document.getElementById('rightPanel');
+  const cls   = animate ? ' slide-in' : '';
+  let html    = '';
+
+  if (activePanel === 'matchup') {
+    const awayName   = (document.getElementById('awayPitcher').value || 'AWAY').slice(0, 12);
+    const homeName   = (document.getElementById('homeBatter').value  || 'HOME').slice(0, 12);
+    const awayW      = document.getElementById('recAwayW').value;
+    const awayL      = document.getElementById('recAwayL').value;
+    const homeW      = document.getElementById('recHomeW').value;
+    const homeL      = document.getElementById('recHomeL').value;
+    const awayStreak = document.getElementById('recAwayStreak').value || '—';
+    const homeStreak = document.getElementById('recHomeStreak').value || '—';
+
+    const streakClass = s => s.toUpperCase().startsWith('W') ? 'win' : 'loss';
+
+    const awayLogoHtml = custom['away'] ? `<div class="rec-logo"><img src="${custom['away']}" alt=""></div>` : '';
+    const homeLogoHtml = custom['home'] ? `<div class="rec-logo"><img src="${custom['home']}" alt=""></div>` : '';
+
+    html = `
+      <div class="panel-content${cls}">
+        <div class="records-card">
+          <div class="rec-team away">
+            ${awayLogoHtml}
+            <div class="rec-info">
+              <div class="rec-name">${awayName}</div>
+              <div class="rec-wl">${awayW}–${awayL}</div>
+              <div class="rec-streak ${streakClass(awayStreak)}">${awayStreak}</div>
+            </div>
+          </div>
+          <div class="rec-divider"></div>
+          <div class="rec-team home">
+            ${homeLogoHtml}
+            <div class="rec-info">
+              <div class="rec-name">${homeName}</div>
+              <div class="rec-wl">${homeW}–${homeL}</div>
+              <div class="rec-streak ${streakClass(homeStreak)}">${homeStreak}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  } else if (activePanel === 'banner') {
+    html = `
+      <div class="panel-content${cls}">
+        <div class="banner-wrap">
+          <div class="banner-title">${document.getElementById('bannerTitle').value}</div>
+          <div class="banner-sub">${document.getElementById('bannerSub').value}</div>
+        </div>
+      </div>`;
+  } else if (activePanel === 'imgbanner' || activePanel === 'imgbanner2' || activePanel === 'imgbanner3' || activePanel === 'imgbanner4') {
+    // when cycling, use the panel ID to pick the slot; when manually showing, use activeImgSlot
+    let slotIdx;
+    if (isCycling) {
+      slotIdx = activePanel === 'imgbanner' ? 0 : parseInt(activePanel.replace('imgbanner','')) - 1;
+    } else {
+      slotIdx = activeImgSlot - 1;
+    }
+    const img = bannerImgs[slotIdx];
+    html = img
+      ? `<div class="panel-content${cls}" style="padding:0;"><div class="img-banner"><img src="${img}" alt="banner"></div></div>`
+      : `<div class="panel-content${cls}"><div class="img-banner"><span class="img-banner-placeholder">\u2191 Upload an image in the settings</span></div></div>`;
+  } else if (activePanel === 'ticker') {
+    const txt   = document.getElementById('tickerText').value || 'SCROLLING TEXT';
+    // duplicate text so the loop is seamless
+    html = `
+      <div class="panel-content${cls}" style="padding:0;overflow:hidden;width:100%;height:100%;">
+        <div class="ticker-wrap">
+          <div class="ticker-track" id="tickerTrack">
+            <span class="ticker-text">${txt}</span>
+            <span class="ticker-text">${txt}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // preserve cycle bar before overwriting innerHTML
+  const barWrap = document.getElementById('cycleBarWrap');
+  const bar     = document.getElementById('cycleBar');
+  panel.innerHTML = html;
+  if (barWrap) panel.appendChild(barWrap);
+
+  // start ticker animation after element is in DOM
+  if (activePanel === 'ticker') {
+    requestAnimationFrame(() => {
+      const track = document.getElementById('tickerTrack');
+      if (!track) return;
+      const speed = parseInt(document.getElementById('tickerSpeed').value) || 12;
+      // width of one copy = half the total track width
+      const halfW = track.scrollWidth / 2;
+      const duration = halfW / speed; // px/s → seconds
+      track.style.animationDuration = duration + 's';
+      track.classList.add('ticker-running');
+    });
+  }
+}
+
+/* ── Master update ── */
+function updateBug(scoreSide, scoreDir) {
+  /* logos */
+  document.getElementById('awayLabelTeam').textContent = document.getElementById('awayPitcher').value;
+  document.getElementById('homeLabelTeam').textContent = document.getElementById('homeBatter').value;
+
+  /* timeout state */
+  const awayTO = document.getElementById('awayTimeout').checked;
+  const homeTO = document.getElementById('homeTimeout').checked;
+  const awayBlock = document.getElementById('awayBlock');
+  const homeBlock = document.getElementById('homeBlock');
+
+  // auto-pause clock when a timeout is called
+  if (awayTO || homeTO) clockPause();
+
+  awayBlock.classList.toggle('timeout-active', awayTO);
+  homeBlock.classList.toggle('timeout-active', homeTO);
+
+  /* gradients — only apply when timeout is NOT active (the !important on .timeout-active handles the override) */
+  awayBlock.style.background = awayTO ? '' :
+    `linear-gradient(135deg,${document.getElementById('awayC1').value} 0%,${document.getElementById('awayC2').value} 100%)`;
+  homeBlock.style.background = homeTO ? '' :
+    `linear-gradient(135deg,${document.getElementById('homeC1').value} 0%,${document.getElementById('homeC2').value} 100%)`;
+
+  /* logos */
+  document.getElementById('awayLogoArea').innerHTML = logoHTML('away');
+  document.getElementById('homeLogoArea').innerHTML = logoHTML('home');
+
+  /* scores with scroll animation */
+  ['away','home'].forEach(side => {
+    const outer  = document.getElementById(side + 'ScoreEl');
+    const newVal = document.getElementById(side + 'Score').value || '0';
+
+    // use data-val as the reliable source of truth for what's currently displayed
+    const oldVal = outer.dataset.val ?? '0';
+
+    if (oldVal === newVal) return; // nothing changed
+
+    // update stored value immediately so rapid clicks always read correctly
+    outer.dataset.val = newVal;
+
+    const dir = scoreSide === side ? scoreDir
+              : (Number(newVal) > Number(oldVal) ? 'up' : 'down');
+
+    // Build track: for up — [old, +delta, new] with pause; for down — [new, old] scroll down
+    let trackHtml, animClass;
+    if (dir === 'up') {
+      const delta = Number(newVal) - Number(oldVal);
+      trackHtml = `<span class="score-digit">${oldVal}</span><span class="score-digit score-delta">+${delta}</span><span class="score-digit score-flash">${newVal}</span>`;
+      animClass = 'score-anim-up-delta';
+    } else {
+      trackHtml = `<span class="score-digit score-flash">${newVal}</span><span class="score-digit">${oldVal}</span>`;
+      animClass = 'score-anim-down';
+    }
+
+    outer.innerHTML = `<div class="score-track ${animClass}">${trackHtml}</div>`;
+  });
+
+  /* period display */
+  renderPeriod();
+
+  const isFinal   = document.getElementById('isFinal').checked;
+  const isPreGame = document.getElementById('isPreGame').checked;
+
+  /* FINAL overlay — show final text, hide period, hide live fields */
+  document.getElementById('finalOverlay').classList.toggle('visible', isFinal && !isPreGame);
+  document.getElementById('finalDisplayText').textContent =
+    document.getElementById('finalText').value || 'FINAL';
+  document.getElementById('liveGameFields').style.display = isFinal ? 'none' : 'contents';
+
+  /* PRE-GAME overlay — hides score numbers only (logos remain), shows custom text in center */
+  document.getElementById('preGameOverlay').classList.toggle('visible', isPreGame);
+  document.getElementById('preGameDisplayText').textContent =
+    document.getElementById('preGameText').value || 'GAME STARTS @ 4 P.M.';
+
+  /* score-hidden adds to team-block: hides .team-score but NOT .team-logo-area */
+  document.getElementById('awayBlock').classList.toggle('score-hidden', isPreGame);
+  document.getElementById('homeBlock').classList.toggle('score-hidden', isPreGame);
+
+  /* hide period number when pre-game */
+  document.getElementById('periodDisplay').style.opacity = isPreGame ? '0' : '1';
+
+  /* FD / sponsor bug */
+  const fdArea = document.getElementById('fdArea');
+  fdArea.style.background = document.getElementById('fdBgColor').value;
+  fdArea.innerHTML = fdImg
+    ? `<img class="fd-img" src="${fdImg}" alt="sponsor">`
+    : `<div class="fd-text">LO<br>GO</div>`;
+
+  /* panel */
+  renderPanel(false);
+  updateShowBtn();
+
+  /* keep transition graphic in sync */
+  renderTransGraphic();
+
+  /* keep banner graphic in sync (logo source may be away/home) */
+  renderBannerGraphic();
+
+  /* keep intro graphic in sync (logos & colors from scorebug) */
+  renderIntroGraphic();
+
+  /* keep ad board in sync (header logo mirrors sponsor logo spot) */
+  renderAdBoard();
+}
+
+/* ── Auto-cycle ── */
+let cycleTimer    = null;
+let cycleBarTimer = null;
+let isCycling     = false;
+
+const PANEL_IDS = ['matchup', 'banner', 'imgbanner', 'imgbanner2', 'imgbanner3', 'imgbanner4', 'ticker'];
+const CYCLE_CHK = { matchup: 'cycleRecords', banner: 'cycleBanner', imgbanner: 'cycleImg', imgbanner2: 'cycleImg2', imgbanner3: 'cycleImg3', imgbanner4: 'cycleImg4', ticker: 'cycleTicker' };
+
+function adjustCycleTime(d) {
+  const el = document.getElementById('cycleTime');
+  el.value = Math.max(5, Math.min(120, +el.value + d));
+}
+
+function getEnabledPanels() {
+  return PANEL_IDS.filter(id => {
+    const chk = document.getElementById(CYCLE_CHK[id]);
+    return chk && chk.checked;
+  });
+}
+
+function toggleCycle() {
+  if (isCycling) stopCycle();
+  else           startCycle();
+}
+
+function startCycle() {
+  const panels = getEnabledPanels();
+  if (panels.length < 2) {
+    alert('Please enable at least 2 panels to cycle.');
+    return;
+  }
+  isCycling = true;
+  const btn = document.getElementById('cycleToggleBtn');
+  btn.textContent = '⏹ Stop Cycling';
+  btn.classList.add('running');
+  document.getElementById('cycleBarWrap').style.display = 'block';
+
+  // start on the first enabled panel
+  activePanel = panels[0];
+  renderPanel(true);
+  updateShowBtn();
+  scheduleCycleNext(1, panels); // next index
+}
+
+function scheduleCycleNext(nextIdx, panels) {
+  const secs = Math.max(5, +document.getElementById('cycleTime').value);
+
+  // progress bar
+  const bar = document.getElementById('cycleBar');
+  bar.style.animation = 'none';
+  bar.style.width = '0%';
+  void bar.offsetWidth;
+  bar.style.animation = `cycleBarFill ${secs}s linear forwards`;
+
+  cycleTimer = setTimeout(() => {
+    if (!isCycling) return;
+    const panels = getEnabledPanels(); // re-read in case user toggled
+    const idx    = nextIdx % panels.length;
+    activePanel  = panels[idx];
+    renderPanel(true);
+    updateShowBtn();
+    scheduleCycleNext(idx + 1, panels);
+  }, secs * 1000);
+}
+
+function stopCycle() {
+  isCycling = false;
+  clearTimeout(cycleTimer);
+  const btn = document.getElementById('cycleToggleBtn');
+  if (btn) { btn.textContent = '▶ Start Cycling'; btn.classList.remove('running'); }
+  const bar = document.getElementById('cycleBar');
+  if (bar) { bar.style.animation = 'none'; bar.style.width = '0%'; }
+  document.getElementById('cycleBarWrap').style.display = 'none';
+}
+
+/* ── Live sync ── */
+document.querySelectorAll('input[type=text], input[type=number], select').forEach(el => {
+  el.addEventListener('input',  updateBug);
+  el.addEventListener('change', updateBug);
+});
+
+/* ════════════════════════════════════════
+   GRAPHIC TABS & SHOW / HIDE
+════════════════════════════════════════ */
+let currentGraphicTab = 'scorebug';
+
+// which graphic element is controlled by each tab
+const GRAPHIC_EL = {
+  scorebug:   'scorebug-outer',
+  transition: 'trans-graphic-outer',
+  banner:     'banner-graphic-outer',
+  intro:      'intro-graphic-outer',
+  adboard:    'adboard-outer',
+};
+
+// track visibility state per graphic
+const graphicVisible = { scorebug: false, transition: false, banner: false, intro: false, adboard: false };
+
+function switchGraphicTab(tab) {
+  if (tab === currentGraphicTab) return;
+  currentGraphicTab = tab;
+
+  // update tab highlights
+  document.querySelectorAll('.graphic-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.gtab === tab);
+  });
+
+  // update graphic control panes
+  document.querySelectorAll('.graphic-pane').forEach(el => {
+    el.classList.toggle('active', el.id === 'gpane-' + tab);
+  });
+
+  // update status dot to reflect this graphic's visibility
+  updateDot();
+}
+
+function updateDot() {
+  const dot = document.getElementById('ghDot');
+  dot.classList.toggle('live', graphicVisible[currentGraphicTab]);
+}
+
+function showGraphic() {
+  const tab = currentGraphicTab;
+
+  // find any other graphic that's currently visible
+  const otherVisible = Object.keys(graphicVisible).find(t => t !== tab && graphicVisible[t]);
+
+  if (otherVisible) {
+    // hide the other one first, then wait 0.75s, then show the new one
+    _doHideGraphic(otherVisible);
+    setTimeout(() => {
+      _doShowGraphic(tab);
+      updateDot();
+    }, 750);
+  } else {
+    _doShowGraphic(tab);
+    updateDot();
+  }
+}
+
+function hideGraphic() {
+  _doHideGraphic(currentGraphicTab);
+  updateDot();
+}
+
+/* ── Low-level show/hide (no cross-fade logic) ── */
+function _doShowGraphic(tab) {
+  const el = document.getElementById(GRAPHIC_EL[tab]);
+  graphicVisible[tab] = true;
+
+  if (tab === 'scorebug') {
+    el.classList.remove('sb-hide-anim', 'sb-visible');
+    void el.offsetWidth;
+    el.classList.add('sb-show-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('sb-show-anim');
+      el.classList.add('sb-visible');
+    }, { once: true });
+  } else if (tab === 'transition') {
+    renderTransGraphic();
+    el.classList.remove('tg-hide-anim', 'tg-visible');
+    void el.offsetWidth;
+    el.classList.add('tg-show-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('tg-show-anim');
+      el.classList.add('tg-visible');
+    }, { once: true });
+  } else if (tab === 'banner') {
+    renderBannerGraphic();
+    const isPromo = document.getElementById('bnType').value === 'promo';
+    // Always reset both elements cleanly first
+    const bnEl = document.getElementById('banner-graphic-outer');
+    const pcEl = document.getElementById('promo-card-outer');
+    bnEl.classList.remove('bn-show-anim', 'bn-visible', 'bn-hide-anim');
+    pcEl.classList.remove('pc-show-anim', 'pc-visible', 'pc-hide-anim');
+    void bnEl.offsetWidth;
+    if (isPromo) {
+      pcEl.classList.add('pc-show-anim');
+      pcEl.addEventListener('animationend', () => {
+        pcEl.classList.remove('pc-show-anim');
+        pcEl.classList.add('pc-visible');
+      }, { once: true });
+    } else {
+      bnEl.classList.add('bn-show-anim');
+      bnEl.addEventListener('animationend', () => {
+        bnEl.classList.remove('bn-show-anim');
+        bnEl.classList.add('bn-visible');
+      }, { once: true });
+    }
+  } else if (tab === 'intro') {
+    // Clear so renderIntroGraphic does a full rebuild with animations
+    document.getElementById('intro-graphic').innerHTML = '';
+    renderIntroGraphic();
+    el.classList.remove('ig-hide-anim', 'ig-visible');
+    void el.offsetWidth;
+    el.classList.add('ig-show-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('ig-show-anim');
+      el.classList.add('ig-visible');
+    }, { once: true });
+  } else if (tab === 'adboard') {
+    renderAdBoard();
+    el.classList.remove('ab-hide-anim', 'ab-visible');
+    void el.offsetWidth;
+    el.classList.add('ab-show-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('ab-show-anim');
+      el.classList.add('ab-visible');
+    }, { once: true });
+  }
+}
+
+function _doHideGraphic(tab) {
+  const el = document.getElementById(GRAPHIC_EL[tab]);
+  graphicVisible[tab] = false;
+
+  if (tab === 'scorebug') {
+    el.classList.remove('sb-show-anim', 'sb-visible');
+    void el.offsetWidth;
+    el.classList.add('sb-hide-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('sb-hide-anim');
+    }, { once: true });
+  } else if (tab === 'transition') {
+    el.classList.remove('tg-show-anim', 'tg-visible');
+    void el.offsetWidth;
+    el.classList.add('tg-hide-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('tg-hide-anim');
+    }, { once: true });
+  } else if (tab === 'banner') {
+    const bnEl = document.getElementById('banner-graphic-outer');
+    const pcEl = document.getElementById('promo-card-outer');
+    if (bnEl.classList.contains('bn-visible')) {
+      bnEl.classList.remove('bn-show-anim', 'bn-visible');
+      void bnEl.offsetWidth;
+      bnEl.classList.add('bn-hide-anim');
+      bnEl.addEventListener('animationend', () => { bnEl.classList.remove('bn-hide-anim'); }, { once: true });
+    }
+    if (pcEl.classList.contains('pc-visible')) {
+      pcEl.classList.remove('pc-show-anim', 'pc-visible');
+      void pcEl.offsetWidth;
+      pcEl.classList.add('pc-hide-anim');
+      pcEl.addEventListener('animationend', () => { pcEl.classList.remove('pc-hide-anim'); }, { once: true });
+    }
+  } else if (tab === 'intro') {
+    el.classList.remove('ig-show-anim', 'ig-visible');
+    void el.offsetWidth;
+    el.classList.add('ig-hide-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('ig-hide-anim');
+    }, { once: true });
+  } else if (tab === 'adboard') {
+    el.classList.remove('ab-show-anim', 'ab-visible');
+    void el.offsetWidth;
+    el.classList.add('ab-hide-anim');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('ab-hide-anim');
+    }, { once: true });
+  }
+}
+
+/* ════════════════════════════════════════
+   TRANSITION GRAPHIC — DATA & RENDER
+════════════════════════════════════════ */
+let tgNetImg = null;
+
+function handleTgNetUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    tgNetImg = e.target.result;
+    const face = document.getElementById('tgNetUpFace');
+    face.textContent = '✓ ' + (file.name.length > 16 ? file.name.slice(0,15)+'…' : file.name);
+    face.classList.add('has-file');
+    renderTransGraphic();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearTgNet() {
+  tgNetImg = null;
+  const face = document.getElementById('tgNetUpFace');
+  face.textContent = '↑ Upload';
+  face.classList.remove('has-file');
+  renderTransGraphic();
+}
+
+function changeTgStat(side, col, delta) {
+  const elId = col === 'col3'
+    ? (side === 'away' ? 'tgAwayCol3' : 'tgHomeCol3')
+    : (side === 'away' ? 'tgAwayCol4' : 'tgHomeCol4');
+  const el = document.getElementById(elId);
+  el.value = Math.max(0, (parseInt(el.value) || 0) + delta);
+  renderTransGraphic();
+}
+
+function renderTransGraphic() {
+  // ── network bar ──
+  const netBar = document.getElementById('tgNetworkBar');
+  const c1 = document.getElementById('tgNetC1').value;
+  const c2 = document.getElementById('tgNetC2').value;
+  netBar.style.background = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
+
+  const logoArea = document.getElementById('tgNetworkLogoArea');
+  logoArea.innerHTML = tgNetImg
+    ? `<img src="${tgNetImg}" alt="network">`
+    : `<span class="tg-network-placeholder">NETWORK LOGO</span>`;
+
+  // ── period label (mirrors main scorebug quarter) ──
+  const periodLbl = document.getElementById('tgPeriodLabel');
+  const isEndOf = document.getElementById('isEndOf').checked;
+  const isFinal = document.getElementById('isFinal').checked;
+  const isPreGame = document.getElementById('isPreGame').checked;
+  const qLabels = { '1':'1ST', '2':'2ND', '3':'3RD', '4':'4TH', 'HT':'HALFTIME', 'OT':'OT' };
+  if (isFinal) {
+    periodLbl.textContent = document.getElementById('finalText').value || 'FINAL';
+  } else if (isPreGame) {
+    periodLbl.textContent = document.getElementById('preGameText').value || 'PRE-GAME';
+  } else if (currentQuarter === 'HT') {
+    periodLbl.textContent = 'HALFTIME';
+  } else {
+    const qName = qLabels[currentQuarter] || currentQuarter;
+    periodLbl.textContent = isEndOf ? `END ${qName}` : qName;
+  }
+
+  // ── column visibility ──
+  const showCol3 = document.getElementById('tgShowCol3').checked;
+  const showCol4 = document.getElementById('tgShowCol4').checked;
+
+  // sync checkbox span labels to match the label inputs
+  const col3LabelVal = document.getElementById('tgCol3Label').value || 'FOULS';
+  const col4LabelVal = document.getElementById('tgCol4Label').value || 'TIMEOUTS';
+  document.getElementById('tgCol3ChkLabel').textContent = col3LabelVal.charAt(0).toUpperCase() + col3LabelVal.slice(1).toLowerCase();
+  document.getElementById('tgCol4ChkLabel').textContent = col4LabelVal.charAt(0).toUpperCase() + col4LabelVal.slice(1).toLowerCase();
+
+  // build grid: logo col + points col + optional col3 + optional col4
+  const cols = ['80px', '1fr', showCol3 ? '1fr' : null, showCol4 ? '1fr' : null]
+    .filter(Boolean).join(' ');
+
+  document.getElementById('tgHeader').style.gridTemplateColumns = cols;
+  document.getElementById('tgAwayRow').style.gridTemplateColumns = cols;
+  document.getElementById('tgHomeRow').style.gridTemplateColumns = cols;
+
+  // toggle header labels
+  document.getElementById('tgCol3Head').style.display = showCol3 ? '' : 'none';
+  document.getElementById('tgCol4Head').style.display = showCol4 ? '' : 'none';
+
+  // toggle stat cells in team rows
+  ['Away','Home'].forEach(t => {
+    document.getElementById(`tg${t}Col3Cell`).style.display = showCol3 ? '' : 'none';
+    document.getElementById(`tg${t}Col4Cell`).style.display = showCol4 ? '' : 'none';
+  });
+
+  // ── column headers ──
+  document.getElementById('tgCol3Head').textContent = document.getElementById('tgCol3Label').value || 'FOULS';
+  document.getElementById('tgCol4Head').textContent = document.getElementById('tgCol4Label').value || 'TIMEOUTS';
+
+  // ── logos (reuse from scorebug, supports text mode) ──
+  ['away', 'home'].forEach(side => {
+    const el = document.getElementById(`tg${side.charAt(0).toUpperCase() + side.slice(1)}Logo`);
+    if (logoMode[side] === 'text') {
+      const txt   = (document.getElementById(side + 'LogoText').value || '').toUpperCase();
+      const color = document.getElementById(side + 'LogoTextColor').value || '#ffffff';
+      const sizes = { 1: 20, 2: 17, 3: 13, 4: 10 };
+      const fs = sizes[txt.length] || 10;
+      el.innerHTML = txt
+        ? `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:${fs}px;color:${color};text-transform:uppercase;letter-spacing:-0.5px;text-shadow:0 1px 6px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;width:100%;text-align:center;">${txt}</span>`
+        : '';
+    } else {
+      el.innerHTML = custom[side] ? `<img src="${custom[side]}" alt="">` : '';
+    }
+  });
+
+  // ── scores ──
+  document.getElementById('tgAwayScore').textContent = document.getElementById('awayScore').value || '0';
+  document.getElementById('tgHomeScore').textContent = document.getElementById('homeScore').value || '0';
+
+  // ── extra stats ──
+  document.getElementById('tgAwayCol3Val').textContent = document.getElementById('tgAwayCol3').value || '0';
+  document.getElementById('tgHomeCol3Val').textContent = document.getElementById('tgHomeCol3').value || '0';
+  document.getElementById('tgAwayCol4Val').textContent = document.getElementById('tgAwayCol4').value || '0';
+  document.getElementById('tgHomeCol4Val').textContent = document.getElementById('tgHomeCol4').value || '0';
+
+  // ── team background gradients — synced from scorebug team colors ──
+  document.getElementById('tgAwayCell').style.background =
+    `linear-gradient(135deg, ${document.getElementById('awayC1').value} 0%, ${document.getElementById('awayC2').value} 100%)`;
+  document.getElementById('tgHomeCell').style.background =
+    `linear-gradient(135deg, ${document.getElementById('homeC1').value} 0%, ${document.getElementById('homeC2').value} 100%)`;
+}
+
+/* ════════════════════════════════════════
+   BANNER GRAPHIC — DATA & RENDER
+════════════════════════════════════════ */
+let bnLogoImg    = null;
+let bnImgOnlyData = null;
+let pcImgData    = null;
+
+function handleBnLogoUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    bnLogoImg = e.target.result;
+    const face = document.getElementById('bnLogoFace');
+    face.textContent = '✓ ' + (file.name.length > 16 ? file.name.slice(0,15)+'…' : file.name);
+    face.classList.add('has-file');
+    renderBannerGraphic();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearBnLogo() {
+  bnLogoImg = null;
+  const face = document.getElementById('bnLogoFace');
+  face.textContent = '↑ Upload';
+  face.classList.remove('has-file');
+  renderBannerGraphic();
+}
+
+function handleBnImgOnly(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    bnImgOnlyData = e.target.result;
+    const face = document.getElementById('bnImgOnlyFace');
+    face.textContent = '✓ ' + (file.name.length > 16 ? file.name.slice(0,15)+'…' : file.name);
+    face.classList.add('has-file');
+    renderBannerGraphic();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearBnImgOnly() {
+  bnImgOnlyData = null;
+  const face = document.getElementById('bnImgOnlyFace');
+  face.textContent = '↑ Upload Image';
+  face.classList.remove('has-file');
+  renderBannerGraphic();
+}
+
+function handlePcImg(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pcImgData = e.target.result;
+    const face = document.getElementById('pcImgFace');
+    face.textContent = '✓ ' + (file.name.length > 16 ? file.name.slice(0,15)+'…' : file.name);
+    face.classList.add('has-file');
+    renderBannerGraphic();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPcImg() {
+  pcImgData = null;
+  const face = document.getElementById('pcImgFace');
+  face.textContent = '↑ Upload';
+  face.classList.remove('has-file');
+  renderBannerGraphic();
+}
+
+function renderBannerGraphic() {
+  const type    = document.getElementById('bnType').value;
+  const bg1     = document.getElementById('bnBgC1').value;
+  const bg2     = document.getElementById('bnBgC2').value;
+  const bgStyle = `linear-gradient(135deg, ${bg1} 0%, ${bg2} 100%)`;
+  const wrap    = document.getElementById('banner-graphic');
+  const promoOuter = document.getElementById('promo-card-outer');
+  const promoCard  = document.getElementById('promo-card');
+
+  // toggle which field groups show in the control panel
+  document.getElementById('bnLogoFields').style.display  = type === 'logo'    ? 'contents' : 'none';
+  document.getElementById('bnTextFields').style.display  = type === 'text'    ? 'block'    : 'none';
+  document.getElementById('bnImgFields').style.display   = type === 'imgonly' ? 'block'    : 'none';
+  document.getElementById('bnPromoFields').style.display = type === 'promo'   ? 'block'    : 'none';
+
+  // The horizontal banner-graphic and promo card are mutually exclusive visuals
+  // The promo card is its own positioned element; the banner wrap is used for types A/B/C
+  wrap.style.display      = type === 'promo' ? 'none' : '';
+
+  // If banner is currently live and user switches type, swap the visible element
+  if (graphicVisible['banner']) {
+    const bnEl = document.getElementById('banner-graphic-outer');
+    const pcEl = document.getElementById('promo-card-outer');
+    if (type === 'promo') {
+      bnEl.classList.remove('bn-show-anim', 'bn-visible', 'bn-hide-anim');
+      if (!pcEl.classList.contains('pc-visible')) {
+        pcEl.classList.remove('pc-hide-anim');
+        void pcEl.offsetWidth;
+        pcEl.classList.add('pc-show-anim');
+        pcEl.addEventListener('animationend', () => {
+          pcEl.classList.remove('pc-show-anim');
+          pcEl.classList.add('pc-visible');
+        }, { once: true });
+      }
+    } else {
+      pcEl.classList.remove('pc-show-anim', 'pc-visible', 'pc-hide-anim');
+      if (!bnEl.classList.contains('bn-visible')) {
+        bnEl.classList.remove('bn-hide-anim');
+        void bnEl.offsetWidth;
+        bnEl.classList.add('bn-show-anim');
+        bnEl.addEventListener('animationend', () => {
+          bnEl.classList.remove('bn-show-anim');
+          bnEl.classList.add('bn-visible');
+        }, { once: true });
+      }
+    }
+  }
+
+  if (type === 'promo') {
+    // Build promo card content
+    const title      = document.getElementById('pcTitle').value      || '';
+    const subtitle   = document.getElementById('pcSubtitle').value   || '';
+    const footerText = document.getElementById('pcFooterText').value || '';
+    const hc1        = document.getElementById('pcHeaderC1').value;
+    const hc2        = document.getElementById('pcHeaderC2').value;
+    const headerBg   = `linear-gradient(135deg, ${hc1} 0%, ${hc2} 100%)`;
+
+    const imgHtml = pcImgData
+      ? `<img src="${pcImgData}" alt="promo">`
+      : `<div class="pc-image-placeholder">
+           <div class="pc-image-placeholder-icon">🖼</div>
+           <div class="pc-image-placeholder-text">Upload image above</div>
+         </div>`;
+
+    const subtitleHtml = subtitle ? `<div class="pc-subtitle">${subtitle}</div>` : '';
+    const footerHtml   = footerText
+      ? `<div class="pc-footer"><div class="pc-footer-text">${footerText}</div></div>`
+      : '';
+
+    promoCard.innerHTML = `
+      <div class="pc-header" style="background:${headerBg};">
+        <div class="pc-title">${title}</div>
+        ${subtitleHtml}
+      </div>
+      <div class="pc-image-area" style="background:${bgStyle};">${imgHtml}</div>
+      ${footerHtml}`;
+
+    return; // promo card visibility is driven by the show/hide buttons via graphicVisible state
+  }
+
+  if (type === 'logo') {
+    const logoSource = document.getElementById('bnLogoSource').value;
+    const showName   = document.getElementById('bnShowName').checked;
+    const showText   = document.getElementById('bnShowText').checked;
+    const panelText  = document.getElementById('bnPanelText').value || '';
+
+    // show/hide upload field based on source
+    document.getElementById('bnCustomLogoField').style.display = logoSource === 'custom' ? '' : 'none';
+    // show/hide name fields based on toggle
+    document.getElementById('bnNameFields').style.display = showName ? 'contents' : 'none';
+
+    // resolve logo — supports text mode for away/home sources
+    let logoSrc = null;
+    let logoIsText = false;
+    let logoTextVal = '', logoTextColor = '#ffffff';
+
+    if (logoSource === 'custom') {
+      logoSrc = bnLogoImg;
+    } else if (logoSource === 'away' || logoSource === 'home') {
+      const side = logoSource;
+      if (logoMode[side] === 'text') {
+        logoIsText   = true;
+        logoTextVal  = (document.getElementById(side + 'LogoText').value || '').toUpperCase();
+        logoTextColor = document.getElementById(side + 'LogoTextColor').value || '#ffffff';
+      } else {
+        logoSrc = custom[side];
+      }
+    }
+
+    let logoContent;
+    if (logoIsText) {
+      const sizes = { 1: 28, 2: 24, 3: 18, 4: 14 };
+      const fs = sizes[logoTextVal.length] || 14;
+      logoContent = logoTextVal
+        ? `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:${fs}px;color:${logoTextColor};text-transform:uppercase;letter-spacing:-0.5px;text-shadow:0 1px 6px rgba(0,0,0,.5);">${logoTextVal}</span>`
+        : `<div class="bn-logo-placeholder">LOGO</div>`;
+    } else {
+      logoContent = logoSrc
+        ? `<img class="bn-logo-img" src="${logoSrc}" alt="">`
+        : `<div class="bn-logo-placeholder">LOGO</div>`;
+    }
+
+    const logoHTML = logoContent;
+
+    // name block — only if showName
+    let nameBlock = '';
+    if (showName) {
+      const topLabel = document.getElementById('bnTopLabel').value || '';
+      const nameMain = document.getElementById('bnNameMain').value || '';
+      nameBlock = `
+        <div class="bn-name-block" style="background:${bgStyle}">
+          ${topLabel ? `<div class="bn-label-top">${topLabel}</div>` : ''}
+          <div class="bn-name-main">${nameMain}</div>
+        </div>`;
+    }
+
+    // text panel — only if showText
+    const textPanel = showText ? `
+      <div class="bn-divider"></div>
+      <div class="bn-text-block">
+        <div class="bn-text-main">${panelText}</div>
+      </div>` : '';
+
+    wrap.innerHTML = `
+      <div class="bn-logo-block" style="background:${bgStyle}">
+        ${logoHTML}
+      </div>
+      ${nameBlock}
+      ${textPanel}`;
+
+  } else if (type === 'text') {
+    const title = document.getElementById('bnCenterTitle').value || '';
+    const sub   = document.getElementById('bnCenterSub').value   || '';
+
+    wrap.innerHTML = `
+      <div class="bn-center-block" style="background:${bgStyle}">
+        <div class="bn-center-title">${title}</div>
+        ${sub ? `<div class="bn-center-sub">${sub}</div>` : ''}
+      </div>`;
+
+  } else if (type === 'imgonly') {
+    const imgSrc = bnImgOnlyData;
+    wrap.innerHTML = `
+      <div class="bn-img-block">
+        ${imgSrc
+          ? `<img src="${imgSrc}" alt="">`
+          : `<div style="color:#9ca3af;font-size:12px;font-weight:600;letter-spacing:.5px;font-family:'Barlow',sans-serif;">↑ Upload an image in settings</div>`
+        }
+      </div>`;
+  }
+}
+
+/* ════════════════════════════════════════
+   GAME CLOCK
+════════════════════════════════════════ */
+let clockTotalMs   = 15 * 60 * 1000; // current time in ms
+let clockRunning   = false;
+let clockInterval  = null;
+let clockLastTick  = null;
+let clockDirection = 'down'; // 'down' | 'up'
+
+function clockFmtMs(ms) {
+  const totalSec = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function clockUpdateDisplay() {
+  const el = document.getElementById('clockDisplay');
+  el.textContent = clockFmtMs(clockTotalMs);
+}
+
+function clockSyncInputs() {
+  const totalSec = Math.max(0, Math.round(clockTotalMs / 1000));
+  document.getElementById('clockSetMin').value = String(Math.floor(totalSec / 60)).padStart(2,'0');
+  document.getElementById('clockSetSec').value = String(totalSec % 60).padStart(2,'0');
+}
+
+function clockSetRunningStyle(running) {
+  const el = document.getElementById('clockDisplay');
+  if (running) {
+    el.classList.remove('clock-paused', 'clock-paused-blink');
+    el.classList.add('clock-running');
+  } else {
+    el.classList.remove('clock-running', 'clock-paused-blink');
+    el.classList.add('clock-paused');
+  }
+}
+
+function clockPlay() {
+  if (clockRunning) return;
+  // don't start if already at limit
+  if (clockDirection === 'down' && clockTotalMs <= 0) return;
+  clockRunning  = true;
+  clockLastTick = performance.now();
+  clockSetRunningStyle(true);
+  clockInterval = setInterval(() => {
+    const now    = performance.now();
+    const delta  = now - clockLastTick;
+    clockLastTick = now;
+    if (clockDirection === 'down') {
+      clockTotalMs = Math.max(0, clockTotalMs - delta);
+      if (clockTotalMs <= 0) { clockPause(); }
+    } else {
+      clockTotalMs += delta;
+    }
+    clockUpdateDisplay();
+  }, 100);
+}
+
+function clockPause() {
+  if (!clockRunning) return;
+  clockRunning = false;
+  clearInterval(clockInterval);
+  clockInterval = null;
+  clockSetRunningStyle(false);
+  clockSyncInputs();
+}
+
+function clockReset() {
+  clockPause();
+  // reset to whatever the Set Time inputs currently show
+  const m = parseInt(document.getElementById('clockSetMin').value) || 0;
+  const s = parseInt(document.getElementById('clockSetSec').value) || 0;
+  clockTotalMs = (m * 60 + Math.min(s, 59)) * 1000;
+  clockUpdateDisplay();
+}
+
+function clockQuickSet(min, sec) {
+  const wasRunning = clockRunning;
+  if (clockRunning) clockPause();
+  clockTotalMs = (min * 60 + sec) * 1000;
+  clockUpdateDisplay();
+  clockSyncInputs();
+  if (wasRunning) clockPlay();
+}
+
+function onClockManualSet() {
+  const m  = parseInt(document.getElementById('clockSetMin').value) || 0;
+  const s  = Math.min(parseInt(document.getElementById('clockSetSec').value) || 0, 59);
+  const wasRunning = clockRunning;
+  if (clockRunning) clockPause();
+  clockTotalMs = (m * 60 + s) * 1000;
+  clockUpdateDisplay();
+  if (wasRunning) clockPlay();
+}
+
+function onClockDirectionChange() {
+  clockDirection = document.getElementById('clockDirection').value;
+}
+
+function toggleClockVisible() {
+  const visible = document.getElementById('clockVisible').checked;
+  document.getElementById('gameClockBlock').classList.toggle('clock-hidden', !visible);
+}
+
+/* ════════════════════════════════════════
+   INTRO GRAPHIC — DATA & RENDER
+════════════════════════════════════════ */
+function introLogoHTML(side) {
+  if (logoMode[side] === 'text') {
+    const txt   = (document.getElementById(side + 'LogoText').value || '').toUpperCase();
+    const color = document.getElementById(side + 'LogoTextColor').value || '#ffffff';
+    if (!txt) return `<div class="ig-logo-placeholder">LOGO</div>`;
+    return `<span class="ig-logo-text" style="color:${color};">${txt}</span>`;
+  }
+  if (custom[side]) return `<img src="${custom[side]}" alt="">`;
+  return `<div class="ig-logo-placeholder">LOGO</div>`;
+}
+
+function introGradient(side) {
+  const c1 = document.getElementById(side + 'C1').value;
+  const c2 = document.getElementById(side + 'C2').value;
+  return `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
+}
+
+function renderIntroGraphic() {
+  const wrap = document.getElementById('intro-graphic');
+  if (!wrap) return;
+
+  const awayRecord = document.getElementById('igAwayRecord').value || '';
+  const awayCity   = document.getElementById('igAwayCity').value   || '';
+  const awayName   = document.getElementById('igAwayName').value   || 'AWAY';
+  const homeRecord = document.getElementById('igHomeRecord').value || '';
+  const homeCity   = document.getElementById('igHomeCity').value   || '';
+  const homeName   = document.getElementById('igHomeName').value   || 'HOME';
+  const venue      = document.getElementById('igVenue').value      || '';
+  const location   = document.getElementById('igLocation').value   || '';
+
+  const awayGrad = introGradient('away');
+  const homeGrad = introGradient('home');
+
+  // Score & state — only show when Final or End of Quarter
+  const isFinal  = document.getElementById('isFinal').checked;
+  const isEndOf  = document.getElementById('isEndOf').checked;
+  const showScore = isFinal || isEndOf;
+  const awayScoreVal = document.getElementById('awayScore').value || '0';
+  const homeScoreVal = document.getElementById('homeScore').value || '0';
+
+  // Build state label text
+  let stateLabel = '';
+  if (isFinal) {
+    stateLabel = document.getElementById('finalText').value || 'FINAL';
+  } else if (isEndOf) {
+    const qLabels = { '1':'1ST', '2':'2ND', '3':'3RD', '4':'4TH', 'HT':'HALFTIME', 'OT':'OT' };
+    stateLabel = 'END OF ' + (qLabels[currentQuarter] || currentQuarter);
+  }
+
+  const statBarHtml = stateLabel
+    ? '<div class="ig-state-bar"><span class="ig-state-badge">' + stateLabel + '</span></div>'
+    : '';
+
+  const awayScoreHtml = showScore ? '<div class="ig-score-away">' + awayScoreVal + '</div>' : '';
+  const homeScoreHtml = showScore ? '<div class="ig-score-home">' + homeScoreVal + '</div>' : '';
+
+  // If the graphic has already been built, patch in-place to avoid replaying CSS animations
+  if (wrap.querySelector('.ig-teams-row')) {
+    const awayTeam = wrap.querySelector('.ig-team.away');
+    const homeTeam = wrap.querySelector('.ig-team.home');
+    if (awayTeam) awayTeam.style.background = awayGrad;
+    if (homeTeam) homeTeam.style.background = homeGrad;
+
+    const awayLogoWrap = wrap.querySelector('.away-logo');
+    const homeLogoWrap = wrap.querySelector('.home-logo');
+    if (awayLogoWrap) awayLogoWrap.innerHTML = introLogoHTML('away');
+    if (homeLogoWrap) homeLogoWrap.innerHTML = introLogoHTML('home');
+
+    const awayInfo = wrap.querySelector('.ig-team.away .ig-team-info');
+    const homeInfo = wrap.querySelector('.ig-team.home .ig-team-info');
+    if (awayInfo) awayInfo.innerHTML =
+      (awayRecord ? '<div class="ig-record">' + awayRecord + '</div>' : '') +
+      (awayCity   ? '<div class="ig-city">'   + awayCity   + '</div>' : '') +
+      '<div class="ig-name">' + awayName + '</div>';
+    if (homeInfo) homeInfo.innerHTML =
+      (homeRecord ? '<div class="ig-record">' + homeRecord + '</div>' : '') +
+      (homeCity   ? '<div class="ig-city">'   + homeCity   + '</div>' : '') +
+      '<div class="ig-name">' + homeName + '</div>';
+
+    // Update score badges — add/remove as needed
+    const teamsRow = wrap.querySelector('.ig-teams-row');
+    let existingAwayScore = wrap.querySelector('.ig-score-away');
+    let existingHomeScore = wrap.querySelector('.ig-score-home');
+    if (showScore) {
+      if (!existingAwayScore) {
+        existingAwayScore = document.createElement('div');
+        existingAwayScore.className = 'ig-score-away';
+        teamsRow.appendChild(existingAwayScore);
+      }
+      if (!existingHomeScore) {
+        existingHomeScore = document.createElement('div');
+        existingHomeScore.className = 'ig-score-home';
+        teamsRow.appendChild(existingHomeScore);
+      }
+      existingAwayScore.textContent = awayScoreVal;
+      existingHomeScore.textContent = homeScoreVal;
+    } else {
+      if (existingAwayScore) existingAwayScore.remove();
+      if (existingHomeScore) existingHomeScore.remove();
+    }
+
+    // Update state bar
+    let existingStateBar = wrap.querySelector('.ig-state-bar');
+    if (stateLabel) {
+      if (!existingStateBar) {
+        existingStateBar = document.createElement('div');
+        existingStateBar.className = 'ig-state-bar';
+        const infoBar = wrap.querySelector('.ig-info-bar');
+        if (infoBar) wrap.insertBefore(existingStateBar, infoBar);
+        else wrap.appendChild(existingStateBar);
+      }
+      existingStateBar.innerHTML = '<span class="ig-state-badge">' + stateLabel + '</span>';
+    } else {
+      if (existingStateBar) existingStateBar.remove();
+    }
+
+    const venueEl    = wrap.querySelector('.ig-info-venue');
+    const locationEl = wrap.querySelector('.ig-info-location');
+    const sepEl      = wrap.querySelector('.ig-info-sep');
+    if (venueEl)    venueEl.textContent    = venue;
+    if (locationEl) locationEl.textContent = location;
+    if (sepEl)      sepEl.style.display    = (venue && location) ? '' : 'none';
+    return;
+  }
+
+  // Full rebuild (first render or after being cleared)
+  const awayRecordHtml = awayRecord ? '<div class="ig-record">' + awayRecord + '</div>' : '';
+  const awayCityHtml   = awayCity   ? '<div class="ig-city">'   + awayCity   + '</div>' : '';
+  const homeRecordHtml = homeRecord ? '<div class="ig-record">' + homeRecord + '</div>' : '';
+  const homeCityHtml   = homeCity   ? '<div class="ig-city">'   + homeCity   + '</div>' : '';
+  const sepHtml        = (venue && location) ? '<div class="ig-info-sep"></div>' : '';
+
+  wrap.innerHTML =
+    '<div class="ig-teams-row">' +
+      '<div class="ig-team away" style="background:' + awayGrad + ';">' +
+        '<div class="ig-logo-wrap away-logo">' + introLogoHTML('away') + '</div>' +
+        '<div class="ig-team-info">' +
+          awayRecordHtml +
+          awayCityHtml +
+          '<div class="ig-name">' + awayName + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ig-vs"></div>' +
+      '<div class="ig-team home" style="background:' + homeGrad + ';">' +
+        '<div class="ig-logo-wrap home-logo">' + introLogoHTML('home') + '</div>' +
+        '<div class="ig-team-info">' +
+          homeRecordHtml +
+          homeCityHtml +
+          '<div class="ig-name">' + homeName + '</div>' +
+        '</div>' +
+      '</div>' +
+      awayScoreHtml +
+      homeScoreHtml +
+    '</div>' +
+    statBarHtml +
+    '<div class="ig-info-bar">' +
+      '<span class="ig-info-venue">' + venue + '</span>' +
+      sepHtml +
+      '<span class="ig-info-location">' + location + '</span>' +
+    '</div>';
+}
+
+/* ════════════════════════════════════════
+   AD SPACE BOARD
+════════════════════════════════════════ */
+let abImages   = [null, null, null, null]; // slots 1–4
+let abSlot     = 0; // 0 = default/logo, 1–4 = ad images
+let abAnimating = false;
+
+/* Upload / clear */
+function handleAbUpload(slot, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    abImages[slot - 1] = e.target.result;
+    const face = document.getElementById('abFace' + slot);
+    face.textContent = '✓ ' + (file.name.length > 16 ? file.name.slice(0, 15) + '…' : file.name);
+    face.classList.add('has-file');
+    if (abSlot === slot) renderAdBoard();
+  };
+  reader.readAsDataURL(file);
+}
+function clearAbSlot(slot) {
+  abImages[slot - 1] = null;
+  const face = document.getElementById('abFace' + slot);
+  face.textContent = '↑ Upload';
+  face.classList.remove('has-file');
+  if (abSlot === slot) { abSlot = 0; renderAdBoard(); abSyncNav(); }
+}
+
+/* Slot selector — called from both control pane buttons and the board footer buttons */
+function abSelectSlot(slot) {
+  if (slot === abSlot) return;
+  const prev = abSlot;
+  abSlot = slot;
+  abSyncNav();
+  // animate the content transition
+  abAnimateSlotChange(prev, slot);
+}
+
+function abSyncNav() {
+  // control pane slot buttons only (footer nav removed from graphic)
+  for (let i = 0; i <= 4; i++) {
+    const ctrlBtn = document.getElementById('abCtrlBtn' + i);
+    const isActive = i === abSlot;
+    if (ctrlBtn) {
+      ctrlBtn.style.background = isActive ? 'var(--accent)' : '#374151';
+      ctrlBtn.style.color      = isActive ? '#fff' : '#d1d5db';
+    }
+  }
+}
+
+function abAnimateSlotChange(prev, next) {
+  const contentEl = document.getElementById('abContent');
+  const existing  = contentEl.querySelector('.ab-frame');
+
+  if (existing) {
+    // slide out old frame
+    existing.classList.add('ab-content-out');
+    existing.addEventListener('animationend', () => {
+      existing.remove();
+      abInsertFrame(contentEl, true);
+    }, { once: true });
+  } else {
+    abInsertFrame(contentEl, true);
+  }
+}
+
+function abInsertFrame(contentEl, animate) {
+  const frame = document.createElement('div');
+  frame.className = 'ab-frame' + (animate ? ' ab-content-in' : '');
+
+  if (abSlot === 0) {
+    // Default state — show sponsor logo
+    const bgColor = document.getElementById('abBodyBg') ? document.getElementById('abBodyBg').value : '#111c2b';
+    frame.innerHTML = abBuildDefaultState(bgColor);
+  } else {
+    const img = abImages[abSlot - 1];
+    if (img) {
+      frame.innerHTML = `<img src="${img}" alt="Ad ${abSlot}">`;
+    } else {
+      const bgColor = document.getElementById('abBodyBg') ? document.getElementById('abBodyBg').value : '#111c2b';
+      frame.innerHTML = `
+        <div class="ab-placeholder" style="background:${bgColor};">
+          <div class="ab-placeholder-icon">🖼</div>
+          <div class="ab-placeholder-text">AD ${abSlot} — Upload Image Above</div>
+        </div>`;
+    }
+  }
+  contentEl.appendChild(frame);
+}
+
+/* ── Header image upload ── */
+let abHeaderImg = null;
+
+function handleAbHeaderImg(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    abHeaderImg = e.target.result;
+    const face = document.getElementById('abHeaderImgFace');
+    face.textContent = '✓ ' + (file.name.length > 16 ? file.name.slice(0,15)+'…' : file.name);
+    face.classList.add('has-file');
+    renderAdBoard();
+  };
+  reader.readAsDataURL(file);
+}
+function clearAbHeaderImg() {
+  abHeaderImg = null;
+  const face = document.getElementById('abHeaderImgFace');
+  face.textContent = '↑ Upload';
+  face.classList.remove('has-file');
+  renderAdBoard();
+}
+
+function onAbHeaderModeChange() {
+  const mode = document.getElementById('abHeaderMode').value;
+  document.getElementById('abHeaderImgField').style.display  = mode === 'customimg' ? '' : 'none';
+  document.getElementById('abHeaderTextField').style.display = mode === 'text'      ? '' : 'none';
+  renderAdBoard();
+}
+
+function abBuildDefaultState(bgColor) {
+  // Default slot always shows the sponsor logo (fdImg) filling the height
+  if (fdImg) {
+    return `<div class="ab-default-state" style="background:${bgColor};"><div class="ab-default-logo-fill"><img src="${fdImg}" alt="sponsor"></div></div>`;
+  }
+  return `<div class="ab-default-state" style="background:${bgColor};"><div class="ab-default-text-logo" style="color:rgba(255,255,255,.3);">LOGO</div></div>`;
+}
+
+/* Main render — syncs colors and refreshes current frame */
+function renderAdBoard() {
+  const h  = document.getElementById('abHeader');
+  const c1 = document.getElementById('abHeaderC1') ? document.getElementById('abHeaderC1').value : '#0d1f3c';
+  const c2 = document.getElementById('abHeaderC2') ? document.getElementById('abHeaderC2').value : '#1a3a6b';
+
+  const mode = document.getElementById('abHeaderMode') ? document.getElementById('abHeaderMode').value : 'hidden';
+  const logoEl = document.getElementById('abHeaderLogo');
+
+  if (mode === 'hidden') {
+    if (h) h.style.display = 'none';
+  } else {
+    if (h) { h.style.display = ''; h.style.background = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`; }
+    if (logoEl) {
+      if (mode === 'sponsorlogo') {
+        logoEl.innerHTML = fdImg
+          ? `<img src="${fdImg}" alt="sponsor">`
+          : `<span class="ab-header-fallback">LOGO</span>`;
+      } else if (mode === 'customimg') {
+        logoEl.innerHTML = abHeaderImg
+          ? `<img src="${abHeaderImg}" alt="header">`
+          : `<span class="ab-header-fallback" style="opacity:.4;font-size:12px;letter-spacing:.5px;">↑ Upload above</span>`;
+      } else if (mode === 'text') {
+        const txt = (document.getElementById('abHeaderText') ? document.getElementById('abHeaderText').value : 'NETWORK') || 'NETWORK';
+        logoEl.innerHTML = `<span class="ab-header-fallback" style="font-size:16px;letter-spacing:2px;opacity:.9;">${txt}</span>`;
+      }
+    }
+  }
+
+  // Refresh current content frame
+  const contentEl = document.getElementById('abContent');
+  if (!contentEl) return;
+  const existing = contentEl.querySelector('.ab-frame');
+  if (existing) {
+    if (abSlot === 0) {
+      const bgColor = document.getElementById('abBodyBg').value;
+      existing.innerHTML = abBuildDefaultState(bgColor);
+    } else if (!abImages[abSlot - 1]) {
+      const bgColor = document.getElementById('abBodyBg').value;
+      existing.innerHTML = `
+        <div class="ab-placeholder" style="background:${bgColor};">
+          <div class="ab-placeholder-icon">🖼</div>
+          <div class="ab-placeholder-text">AD ${abSlot} — Upload Image Above</div>
+        </div>`;
+    }
+  } else {
+    abInsertFrame(contentEl, false);
+  }
+}
+
+/* ── Ad Board show/hide (integrated with existing graphic system) ── */
+// These are called by _doShowGraphic / _doHideGraphic via the GRAPHIC_EL map below
+
+/* ── Init ── */
+updateBug();
+renderTransGraphic();
+renderBannerGraphic();
+renderIntroGraphic();
+renderAdBoard();
+updateDot();
+</script>
+<!-- PROMO CARD GRAPHIC -->
+<div id="promo-card-outer">
+  <div id="promo-card">
+    <!-- rendered by renderBannerGraphic() when type=promo -->
+  </div>
+</div>
+
+</body>
+</html>
